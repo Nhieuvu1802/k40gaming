@@ -18,9 +18,9 @@
 - Rules: cấm Tụ/Die/cả hai; loss code CAM CJ34/CJ20 dừng tool ở 1 unit, CJ26/CJ27/CJ21 dừng tool ở 3 unit; định nghĩa/web ER; setting conversion AX5; trigger mở MTP, chuỗi tài liệu, severity pyramid và 8 bước Setup SC.
 - Dữ liệu lưu bằng `localStorage` và timer cập nhật mỗi giây.
 
-## Cài APK v1.22
+## Cài APK v1.23
 
-File cài đặt mới: `CAM-Setup-Timer-v1.22.apk`.
+File cài đặt mới: `CAM-Setup-Timer-v1.23.apk`.
 
 1. Chép APK sang điện thoại.
 2. Mở APK và cho phép **Cài ứng dụng không rõ nguồn gốc** nếu Android hỏi.

@@ -223,6 +223,11 @@ function showPage(name) {
   $$('.page').forEach((node) => node.classList.toggle('active', node === page));
   $$('.nav-item').forEach((button) => button.classList.toggle('active', button.dataset.page === name));
   $$('.bottom-item[data-page]').forEach((button) => button.classList.toggle('active', button.dataset.page === name));
+  const activeItem = $(`.nav-item[data-page="${name}"]`);
+  if (activeItem) {
+    const group = activeItem.closest('.nav-group');
+    if (group) group.classList.add('open');
+  }
   $('#page-title').textContent = page.dataset.title;
   setMenu(false);
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1251,6 +1256,10 @@ function bindAllEvents() {
   $('#overlay').addEventListener('click', () => setMenu(false));
   $('#bottom-menu').addEventListener('click', () => setMenu(true));
   $$('.nav-item, .bottom-item[data-page]').forEach((button) => button.addEventListener('click', () => showPage(button.dataset.page)));
+  $$('.nav-group-header').forEach((btn) => btn.addEventListener('click', () => {
+    const group = btn.closest('.nav-group');
+    if (group) group.classList.toggle('open');
+  }));
   document.addEventListener('click', (event) => {
     const goButton = event.target.closest('[data-go]');
     const jumpButton = event.target.closest('[data-jump]');
@@ -1348,7 +1357,7 @@ function bindAllEvents() {
 
 function registerServiceWorker() {
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('./sw.js?v=35', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('./sw.js?v=36', { updateViaCache: 'none' })
       .then((registration) => registration.update())
       .catch(() => showToast('Không thể bật chế độ offline.', 'warning'));
   }

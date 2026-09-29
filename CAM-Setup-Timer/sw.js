@@ -1,6 +1,6 @@
-const CACHE = 'cam-setup-timer-v35';
+const CACHE = 'cam-setup-timer-v36';
 const ASSETS = [
-  './', './index.html', './style.css?v=35', './app.js?v=35', './products.js?v=35', './manifest.webmanifest',
+  './', './index.html', './style.css?v=36', './app.js?v=36', './products.js?v=36', './manifest.webmanifest',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'
 ];
 

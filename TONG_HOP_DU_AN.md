@@ -1,257 +1,149 @@
 # TỔNG HỢP DỰ ÁN — SPEC121-0087
-> Cập nhật: 2026-09-29 | Cleaned + Git pushed
 
----
+> Cập nhật: 2026-09-30 · CAM Setup Timer v36 · Android v1.23
 
-## 1. TỔNG QUAN CẤU TRÚC
+## 1. Trạng thái hiện tại
 
-```
+Dự án đã được hợp nhất thành một hệ thống gồm PWA, Android WebView và backend PHP/MySQL. Người dùng có thể tìm SKU/ProductGroup/Test Plan/PN, mở tab Setup của đúng sản phẩm, xem vật liệu và trình tự vận hành, sau đó chuyển thẳng sang timer hoặc bộ tính Die.
+
+- Catalog: 22 sản phẩm, 5 loại Paste.
+- Cache PWA: `cam-setup-timer-v36`.
+- APK mới nhất: `CAM-Setup-Timer-v1.23.apk`.
+- Source of truth: `CAM-Setup-Timer/`.
+- Bốn bản frontend đã đồng bộ: source, `.deploy-staging`, `site/`, Android assets.
+
+## 2. Cấu trúc
+
+```text
 spec121-0087/
-├── CAM-Setup-Timer/                   ← ★ DỰ ÁN CHÍNH — PWA + Android
-│   ├── index.html, app.js, style.css, sw.js, products.js
-│   ├── server/                        ← Backend PHP/MySQL
-│   │   ├── config/config.local.php    ← DB + admin credentials
-│   │   ├── lib/cam_bootstrap.php      ← Core (DB, auth, CORS)
-│   │   ├── api/catalog.php            ← GET/POST catalog
-│   │   ├── api/health.php             ← Health check
-│   │   ├── api/install.php            ← DB installer
-│   │   ├── admin/index.php            ← Admin CRUD
-│   │   └── database/cam_schema.sql    ← MySQL schema
-│   ├── site/                          ← Deploy #1: Netlify
-│   ├── android-app/                   ← Deploy #2: Android APK
-│   └── CAM-Setup-Timer-v1.22.apk      ← Latest APK
-├── .deploy-staging/                   ← Deploy #3: InfinityFree
-├── deployment.local.env               ← FTP + admin credentials
-├── PRODUCT/                           ← Tài liệu sản phẩm
-└── picture/                           ← Ảnh/video line
+├── CAM-Setup-Timer/
+│   ├── index.html, app.js, style.css, products.js, sw.js
+│   ├── server/
+│   │   ├── api/catalog.php, health.php, install.php
+│   │   ├── admin/index.php
+│   │   ├── lib/cam_bootstrap.php
+│   │   ├── data/catalog.seed.json
+│   │   └── database/cam_schema.sql
+│   ├── site/                         # Netlify frontend
+│   ├── android-app/                  # Android wrapper
+│   └── CAM-Setup-Timer-v1.23.apk
+├── .deploy-staging/                  # InfinityFree mirror
+├── deployment.local.env              # thông tin deploy, không commit
+├── PRODUCT/                          # ảnh Product Info Center
+└── picture/                          # tài liệu/ảnh/video vận hành
 ```
 
----
+## 3. URL vận hành
 
-## 2. TẤT CẢ LINKS & URL
+| URL | Chức năng |
+|---|---|
+| `https://vvn.freedev.app` | PWA chính + backend |
+| `https://vvn.freedev.app/api/catalog.php` | GET catalog, POST cập nhật product |
+| `https://vvn.freedev.app/api/health.php` | trạng thái database |
+| `https://vvn.freedev.app/admin/` | quản trị catalog |
+| `https://cool-daffodil-1226c0.netlify.app` | frontend dự phòng Netlify |
 
-### 2.1 Production URLs
+Thông tin FTP, MySQL và mật khẩu quản trị được giữ trong `deployment.local.env` và `server/config/config.local.php`; không ghi mật khẩu rõ trong tài liệu tổng hợp hoặc JavaScript public.
 
-| URL | Loại | Mô tả |
-|-----|------|-------|
-| `https://vvn.freedev.app` | Hosting chính | InfinityFree — PHP backend + PWA |
-| `https://vvn.freedev.app/api/catalog.php` | API | GET catalog; POST update product |
-| `https://vvn.freedev.app/api/health.php` | Health check | DB status, product count |
-| `https://vvn.freedev.app/admin/` | Admin dashboard | CRUD products/materials |
-| `https://vvn.freedev.app/?app=android` | Android entry | WebView URL mặc định |
-| `https://cool-daffodil-1226c0.netlify.app` | Netlify PWA | Static PWA frontend |
+## 4. Luồng người dùng đã hoàn thiện
 
-### 2.2 Internal Links (trong HTML content)
-| URL | Vị trí | Mô tả |
-|-----|--------|-------|
-| `http://mms-ss.intel.com` | rules page | MMS/MTP — Hệ thống vé sự cố Intel |
+1. Nhập tên sản phẩm, alias, Test Plan hoặc PN vào tìm kiếm.
+2. Kết quả sản phẩm mở thẳng `Sản phẩm CAM → Setup`, không chuyển sang hướng dẫn chung.
+3. Màn hình Setup hiển thị Test Plan, vật liệu/PN, tụ/feeder/nozzle, cân Flux, trình tự vận hành, lỗi thường gặp, RLT/Buy-off, loss code và tham số tính toán.
+4. Nút nhanh mở Timer Paste, Timer Flux, tính Die hoặc hướng dẫn đầy đủ.
+5. Khi chọn product, `dieFullSize` và `substratesPerCarrier` tự điền vào bộ tính Die/Coupon.
 
-### 2.3 CORS Origins (config.local.php)
-```php
-'ALLOWED_ORIGINS' => [
-    'http://localhost:8080',                          // Dev
-    'http://127.0.0.1:8080',                         // Dev alt
-    'https://cool-daffodil-1226c0.netlify.app',      // Netlify production
-],
-```
+### V2V/VLV
 
-### 2.4 Local
-| URL | Mô tả |
-|-----|-------|
-| `http://localhost:8080` | Dev: `python -m http.server 8080` |
+V2V có revision nội dung riêng: Test Plan `71VLVFW_DCP`, Flux `D56162-002`, Paste tím `G17793-002`, Proflow tím `197532`, Stencil `1356-00`, tụ/feeder `A31095-020 | A31095-021` và quy trình DEK/DGX → AX5/AXX → ASF → GSC.
 
----
+## 5. Tính toán và theo dõi
 
-## 3. TẤT CẢ TÀI KHOẢN & MẬT KHẨU
+- Paste: thaw/sit, kệ 7 ngày, setup 12/24 giờ, Proflow 72 giờ, mở nắp, stencil, substrate và J58633 18 giờ.
+- Flux: pot life, mở nắp, substrate, điều kiện Prompted.
+- Passives: PN, lot, hạn, install, feeder và MSL.
+- Die: Mother Lot, Kill F1–F4, Die sống, Coupon, lịch sử và checklist.
+- Passdown: checklist và lịch sử ca.
+- Dashboard: timer hoạt động, trạng thái vật liệu, product đang chọn và thao tác nhanh.
 
-### 3.1 FTP — InfinityFree
+## 6. Đồng bộ nhiều thiết bị
 
-| Field | Value |
-|-------|-------|
-| Host | `ftpupload.net` |
-| Username | `if0_42828937` |
-| Password | `Vugiahan1909` |
-| Port | `21` |
-| Path | `/htdocs` |
+- Catalog máy chủ là nguồn dữ liệu dùng chung.
+- Khi online, sửa product từ website cùng domain được ghi vào MySQL ngay.
+- Khi offline, thay đổi được giữ trong `productOverrides` và tự gửi lại khi có mạng.
+- App tải lại catalog khi online, khi quay lại tab và theo chu kỳ 30 giây.
+- Sự kiện `storage` đồng bộ các tab trong cùng trình duyệt.
+- `SYNC_API_KEY` bảo vệ yêu cầu ghi từ origin bên ngoài; yêu cầu ghi cùng domain không làm lộ key trong frontend.
+- Backend lưu revision và lịch sử trong `cam_product_history`.
 
-### 3.2 Admin Web
+## 7. Database production
 
-| Field | Value |
-|-------|-------|
-| URL | `https://vvn.freedev.app/admin/` |
-| Username | `admin` |
-| Password | `CamAdmin-29ok` |
+Production dùng MySQL InfinityFree, không dùng các giá trị mẫu `localhost/cam_setup/cam_user`. Runtime config thật được giữ trên server và đã xác nhận có đủ host, database, username và password.
 
-### 3.3 PBKDF2 Hash (PHP Auth)
+Các bảng: `cam_catalog_meta`, `cam_products`, `cam_materials`, `cam_product_history`, `cam_pending_changes`.
 
-| Field | Value |
-|-------|-------|
-| Algo | PBKDF2-SHA256, 210000 iter |
-| Password | `CamAdmin-29ok` |
-| Hash | `5453388869b71c6a...75dadda` |
-| Salt | `9ad1702985dd659f...171cf02` |
+Migration `contentRevision` tự nâng dữ liệu sản phẩm đã có trong database, nên cập nhật seed không còn bị bỏ qua khi bảng không rỗng.
 
-### 3.4 MySQL
+## 8. Giao diện và cache
 
-| Field | Value |
-|-------|-------|
-| Host | `localhost` |
-| Port | `3306` |
-| DB | `cam_setup` |
-| User | `cam_user` |
-| Password | *(rỗng — cần điền production)* |
-| SYNC_API_KEY | `lxvU3KIaf1WMmZwzABDiFJpdtNhqTjX4bPcVY5Ro2nykseH8` |
+- Sidebar desktop không còn che dashboard.
+- Menu được gom nhóm: Sản phẩm CAM, Tính toán và Chức năng khác.
+- Mobile giữ bottom navigation và menu trượt.
+- `index.html` và `sw.js` dùng `no-store`; JS/CSS có version query.
+- Service Worker dùng network-first cho script/style/worker và cache offline cho tài nguyên khác.
+- Bản hiện tại dùng đồng nhất `?v=36` và cache `v36`.
 
----
+## 9. Các bản cần đồng bộ
 
-## 4. CÁC COMPONENT & CÁCH SỬ DỤNG
+| Bản | Đường dẫn |
+|---|---|
+| Source | `CAM-Setup-Timer/` |
+| InfinityFree | `.deploy-staging/` |
+| Netlify | `CAM-Setup-Timer/site/` |
+| Android offline | `CAM-Setup-Timer/android-app/app/src/main/assets/` |
 
-### 4.1 ★ CAM Setup Timer (PWA)
-- **Path:** `CAM-Setup-Timer/`
-- **Run:** `python -m http.server 8080`
-- **Tech:** Vanilla JS, PWA offline-first, SW cache `v35`
+File bắt buộc: `index.html`, `app.js`, `style.css`, `products.js`, `sw.js`, `manifest.webmanifest`. Backend đồng bộ riêng từ `server/` sang `.deploy-staging/api`, `lib` và `data`.
 
-### 4.2 ★ Android APK
-- **Path:** `CAM-Setup-Timer/android-app/`
-- **Build:** `.\gradlew.bat assembleDebug`
-- **Output:** `android-app/app/build/outputs/apk/debug/app-debug.apk`
-- **Latest:** `CAM-Setup-Timer-v1.22.apk`
-- **Behavior:** Online → `vvn.freedev.app` → fail → offline fallback
+## 10. Kiểm thử bản 2026-09-30
 
-### 4.3 ★ Backend PHP/MySQL
-- **Path:** `CAM-Setup-Timer/server/`
-- **Deploy:** FTP upload lên `vvn.freedev.app/htdocs/`
-- **Endpoints:** GET/POST `/api/catalog.php`, GET `/api/health.php`, GET `/api/install.php`
+- `node --check app.js`: đạt.
+- `node --check sw.js`: đạt.
+- `node check-products.js`: đạt, 22 products và 5 paste.
+- JSON seed parse: đạt.
+- Gradle `assembleDebug --rerun-tasks`: BUILD SUCCESSFUL.
+- APK v1.23 đã tạo thành công.
+- Bốn bản frontend đã được đồng bộ trước khi build.
 
-### 4.4 ★ Netlify Deploy (PWA only)
-- **Path:** `CAM-Setup-Timer/site/`
-- **Config:** `netlify.toml` + `_headers` + `_redirects`
-- **No backend** — gọi API `vvn.freedev.app` qua CORS
+PHP CLI chưa được cài trên máy phát triển nên chưa chạy `php -l`. Cần xác nhận backend bằng `/api/health.php` sau mỗi lần deploy.
 
-### 4.5 ★ .deploy-staging (Full Stack)
-- **Path:** `.deploy-staging/`
-- **Mirror** của `CAM-Setup-Timer/` + `server/` → FTP upload
+## 11. Thay đổi mới nhất
 
----
+### v36 — 2026-09-30
 
-## 5. MỤC ĐÃ XÓA (2026-09-29)
+- Hoàn thiện thẻ Setup theo product: flow, vật liệu, vận hành, loss code và tham số tính toán.
+- Sửa tìm kiếm để mở đúng tab Setup của sản phẩm.
+- Thêm quy trình V2V riêng và migration database theo `contentRevision`.
+- Sửa layout desktop và nhóm lại sidebar.
+- Đổi nút chỉnh product thành “Lưu và đồng bộ”.
+- Sửa xác thực đồng bộ: same-origin ghi database, external origin vẫn cần Sync API Key.
+- Đồng nhất cache/version lên v36.
+- Build Android v1.23.
+- Loại mật khẩu rõ khỏi tài liệu tổng hợp.
 
-| # | Item | Lý do | Status |
-|---|------|-------|--------|
-| 1 | `deploy-backup/` | Draws API cũ (laptopvvn.vercel.app), không liên quan CAM | ✅ ĐÃ XÓA |
-| 2 | 21 APK v1.0→v1.21 | Chỉ giữ v1.22 | ✅ ĐÃ XÓA (~200MB) |
-| 3 | `CAM-Setup-Timer-PWA.zip` | Đã có `site/` folder | ✅ ĐÃ XÓA |
-| 4 | `dist/` | Build output legacy | ✅ ĐÃ XÓA |
-| 5 | `_css.txt`, `_js.txt` | Debug artifact | ✅ ĐÃ XÓA |
-| 6 | `laptopvvn.vercel.app` trong ALLOWED_ORIGINS | Dự án khác, không liên quan | ✅ ĐÃ XÓA |
+## 12. Thành phần không cần cài
 
----
+Không cần cài WordPress, Joomla hoặc ứng dụng Softaculous khác. Chúng không giúp PWA CAM và có thể tạo thêm bề mặt bảo mật hoặc xung đột document root. Stack cần thiết đã đủ: HTML/CSS/JavaScript + Service Worker + PHP + MySQL.
 
-## 6. MỤC CÓ THỂ ĐỒNG BỘ
+InfinityFree từng báo `Account stuck in processing — Affected: Hosting Platform`. Khi trạng thái này xuất hiện, FTP vẫn có thể nhận file nhưng website/CDN có thể phục vụ bản cũ tới khi nền tảng xử lý xong. Đây là trạng thái hạ tầng bên ngoài.
 
-### 6.1 ★★★ 3 COPY SYNC (BẮT BUỘC)
+## 13. Quy trình phát hành
 
-| # | Vị trí | Purpose |
-|---|--------|---------|
-| 1 | `CAM-Setup-Timer/` | **Source of truth** |
-| 2 | `.deploy-staging/` | Mirror → FTP upload |
-| 3 | `android-app/.../assets/` | Android offline fallback |
-
-### 6.2 ★★ Thêm Netlify (4 COPY)
-
-| # | Vị trí | Deploy |
-|---|--------|--------|
-| 4 | `CAM-Setup-Timer/site/` | Netlify |
-
-### 6.3 Files cần sync
-
-| File | Sync khi nào |
-|------|-------------|
-| `app.js` | Mỗi edit |
-| `style.css` | Mỗi edit |
-| `sw.js` | Mỗi edit + bump version 5 nơi |
-| `index.html` | Mỗi edit |
-| `products.js` | Khi thêm/sửa sản phẩm |
-| `manifest.webmanifest` | Hiếm |
-| `server/` | Khi sửa backend |
-
-### 6.4 SW Version Sync Locations
-1. `CAM-Setup-Timer/sw.js` → `const CACHE = 'cam-setup-timer-vXX'`
-2. `.deploy-staging/sw.js`
-3. `android-app/.../assets/sw.js`
-4. `site/sw.js`
-5. + `sw.js?v=XX` trong `app.js` (4 copies)
-
----
-
-## 7. KẾT NỐI GIỮA CÁC DỰ ÁN
-
-### 7.1 ★★★ PWA ↔ Backend PHP — ĐÃ KẾT NỐI
-- PWA fetch catalog từ `vvn.freedev.app/api/catalog.php` mỗi 10 phút
-- `pushProductEdit()` POST updates lên backend
-- Merge catalog offline (products.js) + remote
-
-### 7.2 ★★ PWA ↔ Android WebView — ĐÃ KẾT NỐI
-- Android mở online → fail → offline fallback
-- Assets sync từ source
-
-### 7.3 ★★ PWA ↔ Netlify — ĐÃ KẾT NỐI ✅
-- URL: `https://cool-daffodil-1226c0.netlify.app`
-- Static PWA gọi backend qua CORS (ALLOWED_ORIGINS đã thêm)
-
-### 7.4 ★ Admin ↔ PWA — CHƯA HOÀN THIỆN
-- Admin CRUD có sẵn
-- `SYNC_API_KEY` chưa điền
-
-### 7.5 ★ GitHub ↔ FTP — CHƯA TỰ ĐỘNG
-- Manual deploy hiện tại
-- Thiếu CI/CD
-
----
-
-## 8. HÀNH ĐỘNG CÒN LẠI
-
-| # | Hành động | Ưu tiên |
-|---|-----------|---------|
-| 1 | **Điền `DB_PASS`** trong config.local.php (production) — hiện rỗng, backend không connect MySQL được | 🔴 Cao |
-| 2 | **Git push** | ✅ Hoàn thành — `https://github.com/Nhieuvu1802/k40gaming.git` (branch: `main`) |
-| 3 | **Deploy Netlify** từ `site/` + thêm domain vào ALLOWED_ORIGINS | ✅ Hoàn thành |
-| 4 | **FTP deploy `.deploy-staging/`** — config mới (SYNC_API_KEY, CORS) chưa lên production | 🔴 Cao |
-| 5 | **Setup GitHub Actions → FTP deploy** | 🟢 Thấp |
-
-### Đã hoàn thành (2026-09-29)
-- ✅ Xóa `deploy-backup/` (draws API cũ)
-- ✅ Xóa 21 APK v1.0→v1.21 (~200MB)
-- ✅ Xóa `CAM-Setup-Timer-PWA.zip`, `dist/`, `_css.txt`, `_js.txt`
-- ✅ Xóa `laptopvvn.vercel.app` khỏi ALLOWED_ORIGINS
-- ✅ Fix `.gitignore` — thêm picture/, PRODUCT.rar, *.apk, prompts, check-products.js, android build/
-- ✅ `SYNC_API_KEY` = `lxvU3KIaf1WMmZwzABDiFJpdtNhqTjX4bPcVY5Ro2nykseH8`
-- ✅ CORS: localhost:8080 + `https://cool-daffodil-1226c0.netlify.app`
-- ✅ Sync 3 copy (app.js, style.css, sw.js, products.js, index.html — MD5 match)
-- ✅ Git init + push — orphan branch, purge history GB files (picture/, PDFs, PRODUCT.rar)
-- ✅ GitHub repo: `https://github.com/Nhieuvu1802/k40gaming.git` → branch `main`
-- ✅ Netlify deployed: `https://cool-daffodil-1226c0.netlify.app`
-
----
-
-## 9. DATABASE SCHEMA
-
-```sql
-cam_catalog_meta   — 1 row: version, spec, updated_at
-cam_products       — id, name, family, flow, data_json, revision
-cam_materials      — category(paste/flux/passives/die/stencil), pn, data_json
-cam_product_history — audit: product_id, revision, data_json, changed_by
-cam_pending_changes — staging: product_id, proposed_json, status, effective_at
-```
-
----
-
-## 10. DEPLOYMENT FLOW
-
-```
-LOCAL EDIT (CAM-Setup-Timer/)
-    ↓ sync 3 copies
-    ├──→ site/ → Netlify deploy
-    ├──→ .deploy-staging/ → FTP → vvn.freedev.app
-    └──→ android-app/.../assets/ → Gradle → APK
+```text
+Sửa source CAM-Setup-Timer/
+  → chạy syntax/catalog tests
+  → bump version index/app/sw
+  → sync .deploy-staging + site + Android assets
+  → build APK
+  → FTP deploy .deploy-staging
+  → kiểm tra /api/health.php và tìm thử V2V
 ```

@@ -11,7 +11,7 @@
   <title>CAM Setup Timer</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css?v=34">
+  <link rel="stylesheet" href="./style.css?v=36">
 </head>
 <body>
   <header class="topbar">
@@ -26,17 +26,32 @@
     <div class="sidebar-head"><div><small>121-0087</small><h2>CAM Setup Timer</h2></div><button id="close-menu" class="icon-button" type="button" aria-label="Đóng menu">×</button></div>
     <nav class="sidebar-nav">
       <button class="nav-item active" type="button" data-page="dashboard"><span>⌂</span>Dashboard</button>
-      <button class="nav-item" type="button" data-page="products"><span>#</span>Sản phẩm CAM</button>
-      <button class="nav-item" type="button" data-page="guides"><span>≡</span>Hướng dẫn Setup</button>
-      <button class="nav-item" type="button" data-page="paste"><span>P</span>Paste Timer</button>
-      <button class="nav-item" type="button" data-page="flux"><span>F</span>Flux Timer</button>
-      <button class="nav-item" type="button" data-page="passives"><span>T</span>Passives</button>
-      <button class="nav-item" type="button" data-page="die"><span>D</span>Die Setup</button>
-      <button class="nav-item" type="button" data-page="notes"><span>N</span>Note vận hành</button>
-      <button class="nav-item" type="button" data-page="hirata"><span>H</span>Máy Hirata</button>
-      <button class="nav-item" type="button" data-page="mtp"><span>M</span>Mở MTP</button>
-      <button class="nav-item" type="button" data-page="passdown"><span>✓</span>Passdown</button>
-      <button class="nav-item" type="button" data-page="rules"><span>!</span>Rules</button>
+      <div class="nav-group open">
+        <button class="nav-group-header" type="button"><span>#</span>Sản phẩm CAM<span class="nav-arrow">▾</span></button>
+        <div class="nav-group-items">
+          <button class="nav-item" type="button" data-page="products"><span>#</span>Sản phẩm CAM</button>
+          <button class="nav-item" type="button" data-page="guides"><span>≡</span>Hướng dẫn Setup</button>
+        </div>
+      </div>
+      <div class="nav-group open">
+        <button class="nav-group-header" type="button"><span>⟐</span>Tính toán<span class="nav-arrow">▾</span></button>
+        <div class="nav-group-items">
+          <button class="nav-item" type="button" data-page="paste"><span>P</span>Paste Timer</button>
+          <button class="nav-item" type="button" data-page="flux"><span>F</span>Flux Timer</button>
+          <button class="nav-item" type="button" data-page="passives"><span>T</span>Passives</button>
+          <button class="nav-item" type="button" data-page="die"><span>D</span>Die Setup</button>
+        </div>
+      </div>
+      <div class="nav-group open">
+        <button class="nav-group-header" type="button"><span>⊕</span>Các chức năng khác<span class="nav-arrow">▾</span></button>
+        <div class="nav-group-items">
+          <button class="nav-item" type="button" data-page="notes"><span>N</span>Note vận hành</button>
+          <button class="nav-item" type="button" data-page="hirata"><span>H</span>Máy Hirata</button>
+          <button class="nav-item" type="button" data-page="mtp"><span>M</span>Mở MTP</button>
+          <button class="nav-item" type="button" data-page="passdown"><span>✓</span>Passdown</button>
+          <button class="nav-item" type="button" data-page="rules"><span>!</span>Rules</button>
+        </div>
+      </div>
     </nav>
     <p class="sidebar-note">Dữ liệu lưu cục bộ trên thiết bị. Luôn đối chiếu Spec/TCR đang có hiệu lực.</p>
   </aside>
@@ -117,8 +132,8 @@
           <label class="full-field">Quy trình setup sản phẩm<textarea id="edit-setup-process" rows="4"></textarea></label>
           <label class="full-field">Lỗi thường gặp & cách xử lý<textarea id="edit-common-issues" rows="4"></textarea></label>
           <label class="full-field">Mẹo mất unit / xử lý 3 lot / passdown issue<textarea id="edit-operator-tips" rows="4"></textarea></label>
-          <div class="trial-notice full-field"><b>Chế độ thử nghiệm cục bộ</b><span>Thay đổi ở đây chỉ áp dụng trên thiết bị để kiểm tra giao diện. Muốn đưa lên database sau 24 giờ, dùng trang Admin → Tạo bản thử nghiệm 24h.</span></div>
-          <div class="form-actions full-field"><button class="button button-primary" type="submit">Lưu thử trên thiết bị</button><button id="reset-product-edit" class="button button-ghost" type="button">Khôi phục dữ liệu gốc</button><a class="button button-ghost admin-link" href="./admin/" target="_blank" rel="noopener">Mở Admin online</a></div>
+          <div class="trial-notice full-field"><b>Đồng bộ nhiều thiết bị</b><span>Khi online, thay đổi được ghi vào database và các thiết bị khác tự tải lại. Khi offline, app giữ bản chờ và tự gửi khi có mạng. Dùng trang Admin nếu cần quy trình duyệt thử nghiệm 24 giờ.</span></div>
+          <div class="form-actions full-field"><button class="button button-primary" type="submit">Lưu và đồng bộ</button><button id="reset-product-edit" class="button button-ghost" type="button">Khôi phục dữ liệu gốc</button><a class="button button-ghost admin-link" href="./admin/" target="_blank" rel="noopener">Mở Admin online</a></div>
         </form>
       </details>
       <details class="panel product-sync-panel">
@@ -653,7 +668,7 @@
   </nav>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="./products.js?v=34"></script>
-  <script src="./app.js?v=34" defer></script>
+  <script src="./products.js?v=36"></script>
+  <script src="./app.js?v=36" defer></script>
 </body>
 </html>
