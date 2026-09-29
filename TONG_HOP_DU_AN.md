@@ -1,5 +1,5 @@
 # TỔNG HỢP DỰ ÁN — SPEC121-0087
-> Cập nhật: 2026-09-29 | Cleaned: xóa deploy-backup, APK cũ, dist, zip, debug files
+> Cập nhật: 2026-09-29 | Cleaned + Git pushed
 
 ---
 
@@ -213,20 +213,24 @@ spec121-0087/
 
 | # | Hành động | Ưu tiên |
 |---|-----------|---------|
-| 1 | **Điền `DB_PASS`** trong config.local.php (production) | 🔴 Cao |
-| 2 | **Git commit + push** | 🔴 Cao |
+| 1 | **Điền `DB_PASS`** trong config.local.php (production) — hiện rỗng, backend không connect MySQL được | 🔴 Cao |
+| 2 | **Git push** | ✅ Hoàn thành — `https://github.com/Nhieuvu1802/k40gaming.git` (branch: `main`) |
 | 3 | **Deploy Netlify** từ `site/` + thêm domain vào ALLOWED_ORIGINS | ✅ Hoàn thành |
-| 4 | **Setup GitHub Actions → FTP deploy** | 🟢 Thấp |
+| 4 | **FTP deploy `.deploy-staging/`** — config mới (SYNC_API_KEY, CORS) chưa lên production | 🔴 Cao |
+| 5 | **Setup GitHub Actions → FTP deploy** | 🟢 Thấp |
 
 ### Đã hoàn thành (2026-09-29)
 - ✅ Xóa `deploy-backup/` (draws API cũ)
 - ✅ Xóa 21 APK v1.0→v1.21 (~200MB)
 - ✅ Xóa `CAM-Setup-Timer-PWA.zip`, `dist/`, `_css.txt`, `_js.txt`
 - ✅ Xóa `laptopvvn.vercel.app` khỏi ALLOWED_ORIGINS
-- ✅ Fix `.gitignore` — thêm picture/, PRODUCT.rar, *.apk, prompts, check-products.js
+- ✅ Fix `.gitignore` — thêm picture/, PRODUCT.rar, *.apk, prompts, check-products.js, android build/
 - ✅ `SYNC_API_KEY` = `lxvU3KIaf1WMmZwzABDiFJpdtNhqTjX4bPcVY5Ro2nykseH8`
 - ✅ CORS: localhost:8080 + `https://cool-daffodil-1226c0.netlify.app`
 - ✅ Sync 3 copy (app.js, style.css, sw.js, products.js, index.html — MD5 match)
+- ✅ Git init + push — orphan branch, purge history GB files (picture/, PDFs, PRODUCT.rar)
+- ✅ GitHub repo: `https://github.com/Nhieuvu1802/k40gaming.git` → branch `main`
+- ✅ Netlify deployed: `https://cool-daffodil-1226c0.netlify.app`
 
 ---
 
