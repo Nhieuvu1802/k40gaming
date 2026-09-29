@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">CAM Setup Timer</title>
+  <defs>
+    <linearGradient id="bg" x1="68" y1="38" x2="450" y2="474" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#20c7d9"/>
+      <stop offset="1" stop-color="#1677c8"/>
+    </linearGradient>
+    <linearGradient id="face" x1="170" y1="150" x2="365" y2="382" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#132b43"/>
+      <stop offset="1" stop-color="#07111f"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#07111f"/>
+  <rect x="28" y="28" width="456" height="456" rx="94" fill="url(#bg)"/>
+  <circle cx="256" cy="277" r="137" fill="url(#face)" stroke="#dffcff" stroke-width="18"/>
+  <path d="M209 101h94M256 101v40M367 157l29-29M382 143l16 16" fill="none" stroke="#07111f" stroke-linecap="round" stroke-width="28"/>
+  <path d="M256 196v87l64 37" fill="none" stroke="#f5f8fb" stroke-linecap="round" stroke-linejoin="round" stroke-width="29"/>
+  <circle cx="256" cy="283" r="18" fill="#20c7d9"/>
+  <path d="M148 391h216" stroke="#07111f" stroke-linecap="round" stroke-width="22" opacity=".35"/>
+</svg>

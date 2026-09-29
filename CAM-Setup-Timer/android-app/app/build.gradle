@@ -1,0 +1,43 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.cam.setuptimer'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'com.cam.setuptimer'
+        minSdk 24
+        targetSdk 36
+        versionCode 23
+        versionName '1.22.0'
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-debug'
+        }
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+tasks.register('syncWebAssets', Copy) {
+    from(file('../..')) {
+        include 'index.html'
+        include 'style.css'
+        include 'app.js'
+        include 'products.js'
+        include 'sw.js'
+        include 'manifest.webmanifest'
+        include 'icons/**'
+    }
+    into(layout.projectDirectory.dir('src/main/assets'))
+}
+
+tasks.named('preBuild').configure {
+    dependsOn tasks.named('syncWebAssets')
+}

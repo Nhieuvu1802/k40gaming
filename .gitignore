@@ -1,0 +1,30 @@
+# Secrets
+deployment.local.env
+CAM-Setup-Timer/server/config/config.local.php
+
+# Staging (mirror, not source)
+.deploy-staging/
+
+# Media — too large for git
+picture/
+PRODUCT.rar
+PRODUCT/
+
+# Binaries
+*.apk
+
+# Dev/debug artifacts
+CAM-Setup-Timer/check-products.js
+CAM-Setup-Timer/CHATGPT_PROMPT.md
+CAM-Setup-Timer/MASTER_UPGRADE_PROMPT.md
+PROMPT_Quy_Trinh_Tong_The.md
+
+# Android build
+CAM-Setup-Timer/android-app/build/
+CAM-Setup-Timer/android-app/local.properties
+CAM-Setup-Timer/android-app/app/build/
+CAM-Setup-Timer/android-app/.gradle/
+CAM-Setup-Timer/android-app/.idea/
+
+# PDF docs (too large)
+*.pdf

@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08121f">
+  <meta name="description" content="Theo dõi setup, hạn vật liệu và passdown cho CAM Module">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CAM Setup Timer</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css?v=34">
+</head>
+<body>
+  <header class="topbar">
+    <button id="menu-button" class="icon-button menu-button" type="button" aria-label="Mở menu">☰</button>
+    <div class="brand-mark" aria-hidden="true">CT</div>
+    <div class="topbar-copy"><small>CAM MODULE</small><h1 id="page-title">Dashboard</h1></div>
+    <button id="global-search-button" class="icon-button search-button" type="button" aria-label="Tìm kiếm toàn bộ ứng dụng">⌕</button>
+    <div class="clock-wrap"><span id="network-state">Online</span><time id="clock">--:--:--</time></div>
+  </header>
+
+  <aside id="sidebar" class="sidebar" aria-label="Menu chính">
+    <div class="sidebar-head"><div><small>121-0087</small><h2>CAM Setup Timer</h2></div><button id="close-menu" class="icon-button" type="button" aria-label="Đóng menu">×</button></div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" type="button" data-page="dashboard"><span>⌂</span>Dashboard</button>
+      <button class="nav-item" type="button" data-page="products"><span>#</span>Sản phẩm CAM</button>
+      <button class="nav-item" type="button" data-page="guides"><span>≡</span>Hướng dẫn Setup</button>
+      <button class="nav-item" type="button" data-page="paste"><span>P</span>Paste Timer</button>
+      <button class="nav-item" type="button" data-page="flux"><span>F</span>Flux Timer</button>
+      <button class="nav-item" type="button" data-page="passives"><span>T</span>Passives</button>
+      <button class="nav-item" type="button" data-page="die"><span>D</span>Die Setup</button>
+      <button class="nav-item" type="button" data-page="notes"><span>N</span>Note vận hành</button>
+      <button class="nav-item" type="button" data-page="hirata"><span>H</span>Máy Hirata</button>
+      <button class="nav-item" type="button" data-page="mtp"><span>M</span>Mở MTP</button>
+      <button class="nav-item" type="button" data-page="passdown"><span>✓</span>Passdown</button>
+      <button class="nav-item" type="button" data-page="rules"><span>!</span>Rules</button>
+    </nav>
+    <p class="sidebar-note">Dữ liệu lưu cục bộ trên thiết bị. Luôn đối chiếu Spec/TCR đang có hiệu lực.</p>
+  </aside>
+  <div id="overlay" class="overlay"></div>
+  <div id="global-search" class="search-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="global-search-title">
+    <div class="search-dialog-head"><div><small>TRA CỨU TOÀN APP</small><h2 id="global-search-title">Tìm nhanh thông tin cần làm</h2></div><button id="close-global-search" class="icon-button" type="button" aria-label="Đóng tìm kiếm">×</button></div>
+    <form id="global-search-form" class="global-search-form">
+      <input id="global-search-input" type="search" autocomplete="off" placeholder="Product, Test Plan, PN, loss code, mất unit…" aria-label="Nội dung tìm kiếm">
+      <button class="button button-primary" type="submit">Tìm kiếm</button>
+    </form>
+    <div class="search-suggestions"><button type="button" data-search-query="mất unit">Mất unit</button><button type="button" data-search-query="3 lot">Xử lý 3 lot</button><button type="button" data-search-query="passdown issue">Passdown issue</button><button type="button" data-search-query="cân Flux">Cân Flux</button><button type="button" data-search-query="CJ20">CJ20 thiếu chì</button><button type="button" data-search-query="CJ21">CJ21 nối chì</button><button type="button" data-search-query="CJ24">CJ24 dư chì</button></div>
+    <div id="global-search-summary" class="search-summary">Nhập nội dung hoặc chọn một gợi ý.</div>
+    <div id="global-search-results" class="global-search-results"></div>
+  </div>
+
+  <main class="app-shell">
+    <section id="page-dashboard" class="page active" data-title="Dashboard">
+      <div class="hero-card">
+        <div><span class="eyebrow">FACTORY FLOOR CONTROL</span><h2>Setup đúng giờ.<br>Vật liệu đúng hạn.</h2><p>Timer cập nhật mỗi giây, dữ liệu vẫn còn sau khi tải lại trang.</p></div>
+        <button id="install-button" class="button button-light" type="button" hidden>Cài trên Android</button>
+      </div>
+
+      <div class="section-heading"><div><span class="eyebrow">TÌM & XỬ LÝ NHANH</span><h2>Bạn đang cần làm gì?</h2></div></div>
+      <div class="quick-action-grid">
+        <button type="button" data-open-search="product"><b>⌕ Tìm Product</b><small>Setup · PN · Test Plan</small></button>
+        <button type="button" data-search-query="cân Flux"><b>⚖ Cân Flux</b><small>Vị trí · pattern · target</small></button>
+        <button type="button" data-search-query="mất unit"><b>! Mất unit</b><small>Khoanh vùng · đếm · báo cáo</small></button>
+        <button type="button" data-search-query="3 lot"><b>3 Xử lý 3 lot</b><small>FIFO · cart · chống mixed lot</small></button>
+        <button type="button" data-search-query="passdown issue"><b>✓ Passdown issue</b><small>Ticket · owner · action mở</small></button>
+        <button type="button" data-search-query="loss code"><b># Loss Code</b><small>CJ20 thiếu chì · CJ21 nối chì · CJ24 dư chì</small></button>
+      </div>
+
+      <div class="status-grid">
+        <button class="status-card" type="button" data-go="paste"><span class="status-icon paste-color">P</span><div><b>Paste</b><small id="d-paste">Chưa theo dõi</small></div><i>›</i></button>
+        <button class="status-card" type="button" data-go="flux"><span class="status-icon flux-color">F</span><div><b>Flux</b><small id="d-flux">Chưa theo dõi</small></div><i>›</i></button>
+        <button class="status-card" type="button" data-go="passives"><span class="status-icon passives-color">T</span><div><b>Passives</b><small id="d-passives">Chưa theo dõi</small></div><i>›</i></button>
+        <button class="status-card" type="button" data-go="die"><span class="status-icon die-color">D</span><div><b>Die</b><small id="d-die">Chưa theo dõi</small></div><i>›</i></button>
+        <button class="status-card" type="button" data-go="hirata"><span class="status-icon hirata-color">H</span><div><b>Hirata</b><small>Loader / Unloader</small></div><i>›</i></button>
+        <button class="status-card" type="button" data-go="products"><span class="status-icon product-color">#</span><div><b>Sản phẩm</b><small id="d-products">Catalog CAM</small></div><i>›</i></button>
+        <button class="status-card" type="button" data-go="mtp"><span class="status-icon mtp-color">M</span><div><b>Mở MTP</b><small>Đỏ / Vàng · MMS</small></div><i>›</i></button>
+      </div>
+
+      <div class="section-heading"><div><span class="eyebrow">QUICK GUIDE</span><h2>Hướng dẫn Setup</h2></div><button class="text-button" type="button" data-go="guides">Xem chi tiết</button></div>
+      <button class="guide-flow" type="button" data-go="guides"><span><b>01</b>Setup Tụ</span><i>›</i><span><b>02</b>Setup Die</span><i>›</i><span><b>03</b>Setup Tụ + Die</span></button>
+
+      <div class="section-heading"><div><span class="eyebrow">LIVE</span><h2>Active timers</h2></div><span id="active-count" class="count-badge">0</span></div>
+      <div id="d-active" class="stack-list"></div>
+
+      <div class="section-heading"><div><span class="eyebrow">QUICK CHECK</span><h2>Passdown nhanh</h2></div><button class="text-button" type="button" data-go="passdown">Mở đầy đủ</button></div>
+      <div id="d-passdown" class="quick-checklist"></div>
+    </section>
+
+    <section id="page-products" class="page" data-title="Sản phẩm CAM">
+      <div class="page-heading compact-heading"><div><span class="eyebrow">PRODUCT KNOWLEDGE CENTER · MODULE CAM</span><h2>Tra cứu Setup sản phẩm</h2><p>Tìm SKU là đọc luôn quy trình setup, loss code và thao tác cần làm trên product đó.</p></div></div>
+      <form id="product-search-form" class="catalog-search catalog-search-row"><label>Tìm sản phẩm / Test Plan / PN / loss code / thao tác<input id="product-search" type="search" autocomplete="off" placeholder="VD: SPT, 71SKLPCHFW, CJ21, nối chì, cân Flux"></label><button class="button button-primary" type="submit">Tìm</button></form>
+      <div class="guide-tabs product-tabs">
+        <button class="active" type="button" data-catalog="products">SKU</button>
+        <button type="button" data-catalog="setup">Setup</button>
+        <button type="button" data-catalog="paste">Paste</button>
+        <button type="button" data-catalog="flux">Flux</button>
+        <button type="button" data-catalog="other">Khác</button>
+      </div>
+      <div id="product-active" class="product-active empty-message">Chưa chọn SKU. Chọn 1 sản phẩm để điền sẵn timer.</div>
+      <details id="product-editor" class="panel product-editor">
+        <summary><span>✎</span><div><b>Sửa Product đang chọn</b><small>Lưu trên máy · có thể xuất/đồng bộ JSON</small></div><i>⌄</i></summary>
+        <form id="product-editor-form" class="form-grid">
+          <label>Tên sản phẩm<input id="edit-product-name" required></label>
+          <label>ProductGroup / alias<input id="edit-product-family"></label>
+          <label>Distributed Test Plan<input id="edit-test-plan"></label>
+          <label>Engineering Test Plan<input id="edit-eng-test-plan"></label>
+          <label>DPMS Finish Test Plan<input id="edit-dpms-plan"></label>
+          <label>Flux Part #<input id="edit-flux-pn"></label>
+          <label>Paste Part #<input id="edit-paste-pn"></label>
+          <label>Proflow Part #<input id="edit-proflow-pn"></label>
+          <label>Stencil PB/MP #<input id="edit-stencil-pn"></label>
+          <label class="full-field">Thông tin tụ / feeder / nozzle<textarea id="edit-capacitor-info" rows="3"></textarea></label>
+          <label class="full-field">Flux Center: pattern, vị trí cân, target mg<textarea id="edit-flux-center" rows="3"></textarea></label>
+          <label class="full-field">Quy trình setup sản phẩm<textarea id="edit-setup-process" rows="4"></textarea></label>
+          <label class="full-field">Lỗi thường gặp & cách xử lý<textarea id="edit-common-issues" rows="4"></textarea></label>
+          <label class="full-field">Mẹo mất unit / xử lý 3 lot / passdown issue<textarea id="edit-operator-tips" rows="4"></textarea></label>
+          <div class="trial-notice full-field"><b>Chế độ thử nghiệm cục bộ</b><span>Thay đổi ở đây chỉ áp dụng trên thiết bị để kiểm tra giao diện. Muốn đưa lên database sau 24 giờ, dùng trang Admin → Tạo bản thử nghiệm 24h.</span></div>
+          <div class="form-actions full-field"><button class="button button-primary" type="submit">Lưu thử trên thiết bị</button><button id="reset-product-edit" class="button button-ghost" type="button">Khôi phục dữ liệu gốc</button><a class="button button-ghost admin-link" href="./admin/" target="_blank" rel="noopener">Mở Admin online</a></div>
+        </form>
+      </details>
+      <details class="panel product-sync-panel">
+        <summary><span>↻</span><div><b>Cập nhật database</b><small>Online URL + cache offline · nhập/xuất dự phòng</small></div><i>⌄</i></summary>
+        <div class="sync-controls">
+          <label>URL database JSON<input id="catalog-remote-url" type="url" inputmode="url" placeholder="https://server-noi-bo/cam-products.json"></label>
+          <div id="catalog-sync-status" class="sync-status">Chưa cấu hình đồng bộ online.</div>
+          <div class="form-actions"><button id="sync-catalog" class="button button-primary" type="button">Đồng bộ ngay</button><button id="export-catalog" class="button button-ghost" type="button">Xuất JSON</button><button id="import-catalog" class="button button-ghost" type="button">Nhập JSON</button><input id="catalog-file-input" type="file" accept="application/json,.json" hidden></div>
+        </div>
+      </details>
+      <div id="product-list" class="tracker-list"></div>
+    </section>
+
+    <section id="page-guides" class="page" data-title="Hướng dẫn Setup">
+      <div class="page-heading"><div><span class="eyebrow">STEP BY STEP · CERT RULES</span><h2>Hướng dẫn Setup</h2><p>Chọn đúng loại lot trước khi thao tác. Không chắc phải dừng và hỏi ES/Sup.</p></div></div>
+      <div class="guide-tabs"><button class="active" type="button" data-guide="passives">Setup Tụ</button><button type="button" data-guide="die">Setup Die</button><button type="button" data-guide="both">Tụ + Die</button></div>
+      <div class="cert-source-note"><b>Đã bổ sung từ 19 ảnh câu hỏi cert</b><span>Nội dung dưới đây là ghi nhớ thao tác. Nếu khác tài liệu đang có hiệu lực trên tool/MTL/View Instruction, dừng và escalate Sup/ME/DT để xác nhận.</span></div>
+
+      <article id="guide-passives" class="guide-panel active">
+        <div class="guide-hero blue"><span>T</span><div><small>DEK (DEX/DGX) → AX5 (AXX)</small><h3>SETUP TỤ / PASSIVES</h3></div></div>
+        <div class="guide-steps">
+          <section><b>01</b><div><h3>Setup DEK (DEX/DGX)</h3><p>Chuẩn bị stencil, Paste và Proflow. Chỉ dùng hai cặp: chì trắng + Proflow đen hoặc chì tím + Proflow tím. Ghi đúng mốc ON TOOL và setup gần nhất trên timer.</p></div></section>
+          <section><b>02</b><div><h3>Kiểm tra và dán nhãn Reel</h3><p>Kiểm tra hạn NSX. MBB phải còn đóng kín. Lấy nhãn trắng từ WITS ticket, ghi MM/DD/YYYY HH:MM và dán lên reel.</p></div></section>
+          <section><b>03</b><div><h3>Install Feeder trên SC</h3><p>SC → Materials → chipshooter equipment (AX) → chọn đúng feeder → nhập dữ liệu → Prepared material → Install.</p></div></section>
+          <section><b>04</b><div><h3>Cài MSL</h3><p>Cài MSL cho từng lot có component MSL. Feeder hết hạn phải Uninstall từng cái trước khi Install reel mới.</p></div></section>
+          <section><b>05</b><div><h3>Chuẩn bị tụ tại AX5 (AXX)</h3><p>Chọn feeder phù hợp để adjust; kiểm tra pocket trống/pitch index; bảo đảm tụ đúng điểm pick-up, đúng hướng và nằm giữa vị trí pick-up. Index feeder bằng loading tool trước khi đặt vào AX5.</p></div></section>
+          <section><b>06</b><div><h3>Kiểm tra setting AX5 khi Conversion</h3><p>Kit Definition Support = Enabled; Lot Definition Required = Enabled; HVC Definition = Disabled; Machine Config = Disabled.</p></div></section>
+          <section><b>07</b><div><h3>Xác nhận luồng máy</h3><p>Chạy: DEK/DGX → AX5/AXX → BTU → NMS. Bypass: ASF → GSC ×2 → NMS00016. Chỉ chạy sau khi reel, vị trí, part number, hạn và MSL đều đạt.</p></div></section>
+          <section><b>08</b><div><h3>Điều kiện Introduce Lot kế tiếp</h3><p>Đối với lot cắm tụ: chờ toàn bộ substrate qua hết AX5 và NMS/MNS thứ nhất. Khi carrier đã vào lò BTU (còn gọi là OXI) mới được Introduce lot kế tiếp.</p></div></section>
+          <section><b>09</b><div><h3>RLT và Buy-off</h3><p>RLT qua DEX/DEK: 2 carrier cho mỗi lot. Buy-off cắm Tụ: 2 carrier.</p></div></section>
+        </div>
+        <div class="guide-warning">Tụ rơi khỏi reel phải nhặt vào one-way trash. Không đặt tụ lỗi lên máy hoặc bàn.</div>
+        <div class="action-grid">
+          <section class="action-card do-card"><h3><span>✓</span>NÊN LÀM</h3><ul>
+            <li><b>Không khớp hình AX5:</b> kiểm tra đúng reel, đúng vị trí feeder và part number; chưa giải quyết được thì báo MTE.</li>
+            <li><b>Failed to pick:</b> đọc alarm → kiểm tra reel hết tụ, feeder index/căn giữa và băng dính reel → thay reel/feeder đúng tình trạng → báo MTE nếu còn lỗi.</li>
+            <li><b>Idle link &gt;30 phút:</b> RTI 2 carriers, kiểm tra ngoại quan chì và tụ, sau đó buy-off 2 carriers.</li>
+            <li><b>CJ26 lệch tụ / CJ27 missing tụ tại AX5:</b> báo MTE ngay với trường hợp reject → sau troubleshooting cho chạy hết các carrier đã in chì → thực hiện System Calibration/Multiplex Calibration → retry trong 5 phút → còn lỗi phải báo MTE.</li>
+            <li><b>Loss code dừng tool:</b> CJ34/CJ20 chỉ cần 1 unit; CJ21/CJ24/CJ26/CJ27 đủ 3 unit thì dừng tool và mở MTP theo quy định.</li>
+            <li><b>Introduce lot kế tiếp:</b> xác nhận substrate đã qua hết AX5 + NMS/MNS thứ nhất và carrier đã vào BTU/OXI.</li>
+          </ul></section>
+          <section class="action-card dont-card"><h3><span>×</span>KHÔNG NÊN / CẤM</h3><ul>
+            <li>Không thay feeder theo phỏng đoán trước khi kiểm tra reel, vị trí và part number.</li>
+            <li>Không tiếp tục clear lỗi khi thấy unit bất thường; phải báo MTE.</li>
+            <li>Không chạy khi reel/feeder hết hạn, còn MSL warning hoặc thiếu Passives.</li>
+            <li>Không bỏ qua CJ20/CJ21/CJ24/CJ26/CJ27/CJ34/CJ13; đây là nhóm loss code ảnh hưởng cao tại CAM.</li>
+            <li>Không Introduce lot mới khi substrate còn trong AX5/NMS thứ nhất hoặc carrier chưa vào BTU/OXI.</li>
+          </ul></section>
+        </div>
+      </article>
+
+      <article id="guide-die" class="guide-panel">
+        <div class="guide-hero amber"><span>D</span><div><small>ASYMTEK (ASF) → GROHMANN (GSC)</small><h3>SETUP DIE</h3></div></div>
+        <div class="guide-steps">
+          <section><b>01</b><div><h3>Kiểm tra Die Lot và ATPO</h3><p>Xác minh reel die khớp ATPO trên Workstream, đủ substrate tại công đoạn 599 và carrier không SOOP.</p></div></section>
+          <section><b>02</b><div><h3>Chuẩn bị Batching / Cart</h3><p>Cộng số Die của tất cả cuộn trên feeder, chia theo số lượng một lot full; phần dư cuối là Mother Lot. Tuân thủ FIFO: 1 lot/lần, 1 lot/cart, 1 ATPO/cart và tối đa 6 magazines.</p></div></section>
+          <section><b>03</b><div><h3>Setup Flux tại Asymtek (ASF)</h3><p>Trước setup, khi lấy Flux ra phải ghi tên người sử dụng lên ống để thực hiện OnTool. Kiểm tra loại Flux, hạn và điều kiện Prompted.</p></div></section>
+          <section><b>04</b><div><h3>Cân Flux / Perform Pre-Weights</h3><p>Cân substrate đúng vị trí theo loại carrier. Flux 340i phải chờ tối thiểu 6 phút sau khi phun rồi mới cân. Đơn vị cân là mg, reset về 0 và không dùng coupon.</p></div></section>
+          <section><b>05</b><div><h3>Setup Grohmann (GSC)</h3><p>Đặt die feeder/reel đúng recipe, kiểm tra tip dưới kính. Trình tự ghi nhớ: End Cycle → Homing → lau kính → Auto Come. Bảo đảm carrier đã dừng trước khi mở cửa.</p></div></section>
+          <section><b>06</b><div><h3>CQG / Auto Compensation</h3><p>Chạy khi được yêu cầu. Die-only bypass DEK/DGX và AX5/AXX; các máy còn lại phải chạy theo flow.</p></div></section>
+          <section><b>07</b><div><h3>Kiểm tra Feeder trên SC</h3><p>Đối chiếu feeder thực tế với feeder trên SC và xác nhận đã đồng bộ. Nếu SC hiển thị Unknown hoặc feeder chưa đồng bộ thì không được Introduce lot mới.</p></div></section>
+          <section><b>08</b><div><h3>Điều kiện Slip Lot và RLT</h3><p>Đối với lot cắm Die: carrier phải qua hết AX5 trước. Sau đó phải hoàn tất Slip Lot; chỉ khi Slip Lot xong mới được RLT để cho carrier vào Grohmann/GSC.</p></div></section>
+          <section><b>09</b><div><h3>RLT và Buy-off</h3><p>RLT trong quy trình cắm Die: 4 carrier cho mỗi lot. Buy-off cắm Die: 6 carrier, chia 3 carrier vào Grohmann 1 và 3 carrier vào Grohmann 2.</p></div></section>
+          <section><b>10</b><div><h3>Introduce Lot</h3><p>Toàn bộ carrier/sản phẩm của lot trước phải vào GSC và được đếm đủ. Chỉ Introduce lot mới khi feeder đã đồng bộ trên SC, không còn trạng thái Unknown và toàn bộ checklist đạt.</p></div></section>
+        </div>
+        <section class="panel inline-panel flux-weigh-panel">
+          <div class="panel-title"><div><span class="eyebrow">FLUX PRE-WEIGHTS</span><h3>Vị trí cân theo loại carrier</h3></div></div>
+          <p class="panel-help">Cân substrate chưa phun Flux, đúng chiều và không dùng coupon. Ghi giá trị khi cân ổn định, lấy substrate ra rồi tiếp tục mẫu kế tiếp; lặp lại đến khi đủ dữ liệu trên Mettle Scale SC.</p>
+          <div class="table-scroll"><table><thead><tr><th>Loại carrier</th><th>Vị trí phải cân</th></tr></thead><tbody>
+            <tr><td>3-up</td><td>1, 2, 3</td></tr>
+            <tr><td>4-up</td><td>1, 2, 3, 4</td></tr>
+            <tr><td>6-up</td><td>1, 2, 5, 6</td></tr>
+            <tr><td>8-up</td><td>1, 3, 6, 8</td></tr>
+            <tr><td>10-up</td><td>1, 3, 8, 10</td></tr>
+            <tr><td>12-up</td><td>1, 4, 9, 12</td></tr>
+            <tr><td>14-up</td><td>1, 5, 10, 14</td></tr>
+            <tr><td>16-up</td><td>1, 5, 12, 16</td></tr>
+            <tr><td>21-up — Legacy CS</td><td>1, 7, 10, 12, 15, 21</td></tr>
+            <tr><td>21-up — CPU / 1269 onwards CS</td><td>1, 10, 12, 21</td></tr>
+            <tr><td>24-up — Legacy CS</td><td>1, 8, 11, 14, 17, 24</td></tr>
+            <tr><td>24-up — CPU / 1269 onwards CS</td><td>1, 11, 14, 24</td></tr>
+            <tr><td>24-up — Captive carrier fixture</td><td>2, 11, 14, 23</td></tr>
+            <tr><td>36-up</td><td>1, 15, 22, 36</td></tr>
+          </tbody></table></div>
+          <div class="carrier-legend"><span><i></i>Vị trí thường</span><span><i class="weigh-key"></i>Vị trí phải cân</span></div>
+          <div id="flux-position-diagrams" class="carrier-diagrams"></div>
+          <div class="ban-note">Quy tắc đánh số: vị trí 1 nằm ở hàng dưới, đếm từ trái sang phải rồi chuyển lên hàng phía trên. Trước khi cân vẫn phải xác nhận đúng đầu/chiều carrier theo hình chuẩn hoặc recipe tại máy.</div>
+          <div class="prompted-rule"><div class="rule-good"><b>TRƯỚC KHI CÂN</b><span>Đúng recipe · đơn vị mg · reset 0 · đúng chiều · substrate sạch</span></div><div class="rule-stop"><b>FLUX 340i</b><span>Không cân trước khi đủ tối thiểu 6 phút sau phun</span></div></div>
+        </section>
+        <div class="guide-warning">Tuyệt đối không mở cửa GSC khi carrier đang di chuyển. Nếu không chắc: Local máy trên SC → End Cycle → chờ hoàn tất rồi mới mở cửa.</div>
+        <div class="action-grid">
+          <section class="action-card do-card"><h3><span>✓</span>NÊN LÀM</h3><ul>
+            <li><b>VisID:4 / Down Looking Camera:</b> báo MTE/L2 theo đáp án cert.</li>
+            <li><b>Bond Head Vision/Placer Measurement:</b> kiểm tra SOOP, sửa khi được phép và đo lại; nếu die mẻ cạnh/góc, hư bump hoặc có bất thường trên die thì dừng lot và báo ES/MTE ngay.</li>
+            <li><b>Không tìm thấy Fiducial tại ASYMTEK:</b> kiểm tra vị trí vật lý carrier so với stopper pin, đưa carrier về đúng vị trí; cần thì báo L2.</li>
+            <li><b>UPI No Read:</b> kiểm tra tâm die pocket với tâm pocket feeder, notch và các vị trí feeder; nếu đã thẳng hàng mà vẫn lỗi thì báo MTE.</li>
+            <li><b>Transport Fail/Jam:</b> dừng FCM/AX5, xử lý boat theo đúng SOP/“boat removed”, kiểm tra các boat bị ảnh hưởng và báo MTE nếu còn vấn đề.</li>
+          </ul></section>
+          <section class="action-card dont-card"><h3><span>×</span>KHÔNG NÊN / CẤM</h3><ul>
+            <li>Không chỉ lau camera hoặc bấm Retry lặp lại khi gặp VisID:4.</li>
+            <li>Không tiếp tục lot khi vision cho thấy die mẻ, hư bump hoặc bất thường.</li>
+            <li>Không tự kéo carrier, mở cover hoặc di chuyển bond head ngoài SOP/chứng nhận cho phép.</li>
+            <li>Không Introduce lot khi ULT/UPI/vision/measurement chưa được xử lý và xác nhận đạt.</li>
+          </ul></section>
+        </div>
+      </article>
+
+      <article id="guide-both" class="guide-panel">
+        <div class="guide-hero purple"><span>T+D</span><div><small>COMBINED LOT</small><h3>SETUP TỤ + DIE</h3></div></div>
+        <div class="guide-steps">
+          <section><b>01</b><div><h3>Pre-check chung</h3><p>Xác nhận Tool UP, recipe đúng, vật liệu còn hạn, đủ Passives và đủ substrate. Không được Mixed Lot.</p></div></section>
+          <section><b>02</b><div><h3>Setup full quy trình</h3><p>Setup DEK/DGX với stencil + Paste + Proflow; chuẩn bị tụ tại AX5/AXX; setup Flux tại ASF và Die tại GSC.</p></div></section>
+          <section><b>03</b><div><h3>Setup Tụ</h3><p>Kiểm tra reel/MBB/nhãn → Install đúng feeder trên SC → cài MSL → căn feeder/pick-up tại AX5.</p></div></section>
+          <section><b>04</b><div><h3>Setup Die</h3><p>Khớp ATPO → chuẩn bị cart/substrate → OnTool Flux → đặt die feeder → kiểm tra tip → GSC End Cycle/Homing/lau kính/Auto Come.</p></div></section>
+          <section><b>05</b><div><h3>Verify full máy và Introduce</h3><p>Không bypass công đoạn của flow Tụ + Die. Kiểm tra Material Info, OnTool, recipe và cả hai checklist; chỉ Introduce khi toàn bộ điều kiện đạt.</p></div></section>
+          <section><b>06</b><div><h3>RLT và Buy-off</h3><p>RLT cắm Tụ + Die: 2 carrier sau DEK và 6 carrier sau AX5 cho mỗi lot. Buy-off: 6 carrier, chia 3 carrier vào Grohmann 1 và 3 carrier vào Grohmann 2.</p></div></section>
+        </div>
+        <div class="guide-warning">Không tự ý bypass Material / Tool / Recipe. Thiếu một điều kiện thì không Introduce Lot.</div>
+        <div class="action-grid">
+          <section class="action-card do-card"><h3><span>✓</span>NÊN LÀM</h3><ul>
+            <li><b>Tài liệu cert:</b> khi so sánh ETEI/TEI/SPEC/SWI, thứ tự ưu tiên là ETEI → TEI → SPEC → SWI. Nếu MTL khác View Instruction, escalate Sup/ME/DT và chỉ tiếp tục theo hướng dẫn đã được xác nhận.</li>
+            <li><b>Paste lấy từ tủ lạnh:</b> kiểm tra cảnh báo vượt nhiệt và thông tin trên ống; nhiệt độ lưu trữ theo cert là 5 ± 5°C.</li>
+            <li><b>Paste/Flux:</b> tối đa 2 SLI# trong một child lot; tất cả Paste SLI# phải lưu trên Station Controller để truy nguồn.</li>
+            <li><b>Proflow:</b> hết hạn sau 72 giờ tính từ ON TOOL. Chì trắng/Proflow đen setup lại mỗi 24 giờ; chì tím/Proflow tím setup lại mỗi 12 giờ. Riêng chì J58633-001 phải ghi ngày giờ ON TOOL và ngày giờ hết hạn sau 18 giờ.</li>
+            <li><b>Flux:</b> cân 1 lần/shift, khi SC yêu cầu và khi conversion. Nếu thiếu/dư tại RTI hoặc pre/post DPMS: dừng máy trước Grohmann và báo L2/ES/MTE.</li>
+            <li><b>Move-out lot:</b> đếm 100% số carrier. Tool Issue phải có MTP ticket; sau ES troubleshooting chạy buy-off 2 tray qua Post DPMS.</li>
+          </ul></section>
+          <section class="action-card dont-card"><h3><span>×</span>KHÔNG NÊN / CẤM</h3><ul>
+            <li>Không tự chỉnh áp suất ASF khi thấy Flux thiếu/dư.</li>
+            <li>Không clean stencil bằng tay trong điều kiện bình thường; chỉ thực hiện khi Smart Sonic down và đúng hướng dẫn/ủy quyền hiện hành.</li>
+            <li>Không làm việc với hóa chất chưa xác định, thiếu PPE, vô hiệu interlock hoặc vận hành/sửa máy khi chưa đủ chứng nhận.</li>
+            <li>Không tự tháo LOTO hoặc cố bật máy; chỉ khởi động lại khi thiết bị đã được trả về sản xuất và được xác nhận an toàn.</li>
+          </ul></section>
+        </div>
+      </article>
+    </section>
+
+    <section id="page-notes" class="page" data-title="Note vận hành">
+      <div class="page-heading"><div><span class="eyebrow">QUICK NOTE</span><h2>Note vận hành</h2><p>Ghi nhớ nhanh theo từng loại setup và tình huống tại máy.</p></div></div>
+
+      <article class="panel note-panel">
+        <div class="panel-title"><div><span class="eyebrow">MACHINE FLOW</span><h3>Luồng máy theo loại lot</h3></div></div>
+        <div class="flow-notes">
+          <section><b>CHẠY TỤ</b><p>Setup DEK (DEX/DGX): stencil + Paste + Proflow; chuẩn bị tụ tại AX5 (AXX). Chỉ Introduce lot kế tiếp sau khi toàn bộ substrate qua AX5 và NMS/MNS thứ nhất, carrier đã vào BTU/OXI.</p><small>RUN: DEK/DGX → AX5/AXX → BTU → NMS<br>BYPASS: ASF → GSC ×2 → NMS00016</small></section>
+          <section><b>CHẠY DIE</b><p>Không setup DEK và AX5. Setup máy phun Flux Asymtek (ASF) và Grohmann (GSC). Trước khi Introduce, feeder phải đồng bộ trên SC và không được ở trạng thái Unknown. Carrier phải qua hết AX5, hoàn tất Slip Lot rồi mới được RLT để vào Grohmann/GSC.</p><small>BYPASS: DEK/DGX + AX5/AXX (carrier vẫn phải qua hết AX5)<br>RUN: các máy còn lại theo flow</small></section>
+          <section><b>TỤ + DIE</b><p>Chạy full quy trình: DEK/Paste/Proflow → AX5/Tụ → ASF/Flux → GSC/Die và các máy còn lại.</p><small>Không bypass công đoạn của flow kết hợp.</small></section>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-title"><div><span class="eyebrow">RLT &amp; BUY-OFF</span><h3>Số lượng carrier theo loại lot</h3></div></div>
+        <div class="table-scroll"><table><thead><tr><th>Loại lot</th><th>RLT</th><th>Buy-off</th></tr></thead><tbody>
+          <tr><td>Cắm Tụ</td><td>2 carrier/lot qua DEX/DEK</td><td>2 carrier</td></tr>
+          <tr><td>Cắm Die</td><td>4 carrier/lot</td><td>6 carrier: 3 Grohmann 1 + 3 Grohmann 2</td></tr>
+          <tr><td>Cắm Tụ + Die</td><td>2 carrier sau DEK + 6 carrier sau AX5/lot</td><td>6 carrier: 3 Grohmann 1 + 3 Grohmann 2</td></tr>
+        </tbody></table></div>
+        <div class="ban-note">Không được bỏ thiếu số carrier RLT hoặc Buy-off theo loại lot.</div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-title"><div><span class="eyebrow">PASTE & PROFLOW</span><h3>Chì và Proflow</h3></div></div>
+        <div class="action-grid">
+          <section class="action-card do-card"><h3><span>✓</span>ĐƯỢC LÀM</h3><ul>
+            <li><b>Chì trắng + Proflow đen:</b> setup lại sau 24 giờ.</li>
+            <li><b>Chì tím + Proflow tím:</b> setup lại sau 12 giờ.</li>
+            <li><b>Hạn Proflow:</b> 72 giờ tính từ thời điểm ON TOOL/bơm vào Proflow.</li>
+            <li><b>Paste sau mở nắp:</b> hạn sử dụng 6 ngày, được tính độc lập với hạn Proflow.</li>
+            <li><b>Proflow đen:</b> khi còn trong 72 giờ được fill dùng tiếp, tối đa 4 ống / 2 SLI.</li>
+            <li><b>Chì J58633-001:</b> khi OnTool Proflow phải ghi ngày giờ ON TOOL và ngày giờ hết hạn chì; thời gian sử dụng là 18 giờ.</li>
+          </ul></section>
+          <section class="action-card dont-card"><h3><span>×</span>KHÔNG ĐƯỢC LÀM</h3><ul>
+            <li>Không dùng loại chì hoặc cặp Proflow ngoài hai cặp trắng/đen và tím/tím.</li>
+            <li>Proflow tím không fill dùng tiếp; dùng hết phải bơm Proflow mới.</li>
+            <li>Proflow quá 72 giờ không được sử dụng lại hoặc fill tiếp; phải bơm mới.</li>
+            <li>Không vượt giới hạn 4 ống / 2 SLI với Proflow đen.</li>
+          </ul></section>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-title"><div><span class="eyebrow">GSC SAFETY</span><h3>Ghi nhớ setup GSC</h3></div></div>
+        <ol class="step-list"><li>Đưa toàn bộ carrier/sản phẩm của lot trước vào GSC và đếm đủ; chưa đủ thì không cho lot mới vào.</li><li>Trên SC chọn Local máy nếu chưa chắc trạng thái an toàn.</li><li>Nhấn End Cycle và chờ hoàn tất.</li><li>Thực hiện Homing.</li><li>Lau kính trước khi bấm Auto Come.</li><li>Chỉ mở cửa khi chắc chắn tất cả carrier trong máy đã ngừng di chuyển.</li></ol>
+        <div class="ban-note">Tuyệt đối không mở cửa GSC khi carrier đang di chuyển hoặc trong thời gian cấm Die. Không rõ tình trạng thì giữ máy an toàn và hỏi ES/MTE.</div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-title"><div><span class="eyebrow">REMEMBER</span><h3>Note bắt buộc</h3></div></div>
+        <ul class="note-list"><li>Khi lấy Flux ra trước setup, ghi tên người sử dụng lên ống để thực hiện OnTool.</li><li>Setup Die có bước cân Flux; xem bảng vị trí từ 3-up đến 36-up trong <b>Hướng dẫn Setup → Setup Die</b>.</li><li>Hóa chất không xác định: không thao tác, liên hệ số <b>3333</b>.</li><li>GN20/lỗi lạ: CMT V1V và VCR 2 sản phẩm, đồng thời báo theo escalation hiện hành.</li><li>Khi loss code thuộc trigger MTP xuất hiện: dừng/giữ máy an toàn và mở MTP. Cách mở MTP sẽ cập nhật sau.</li></ul>
+      </article>
+    </section>
+
+    <section id="page-paste" class="page" data-title="Paste Timer">
+      <div class="page-heading"><div><span class="eyebrow">PASTE & PROFLOW</span><h2>Paste Timer</h2><p>Tính riêng sit time, chu kỳ setup lại và hạn Proflow 72 giờ từ ON TOOL.</p></div></div>
+      <form id="paste-form" class="panel form-panel">
+        <div class="panel-title"><h3>Thêm Paste</h3><span class="legend"><i class="safe-dot"></i><i class="warning-dot"></i><i class="danger-dot"></i></span></div>
+        <label>Part Number / Tên
+          <input id="paste-name" list="paste-pn-list" autocomplete="off" placeholder="Chọn PN catalog hoặc gõ tay" required>
+        </label>
+        <datalist id="paste-pn-list"></datalist>
+        <div class="field-grid">
+          <label>Loại chì / Sit time<select id="paste-type"><option value="white">Chì trắng — 3 giờ</option><option value="purple">Chì tím — 2 giờ</option></select></label>
+          <label>Màu Proflow<select id="paste-proflow-color"><option value="black">Proflow đen</option><option value="purple">Proflow tím</option></select></label>
+          <label>Chế độ Proflow<select id="paste-proflow-mode"><option value="new">Bơm Proflow mới</option><option value="refill">Fill dùng tiếp</option></select></label>
+          <label>Quy tắc hạn chì<select id="paste-special-material"><option value="standard">Theo loại chì thông thường</option><option value="j58633">J58633-001 — hết hạn sau 18 giờ ON TOOL</option></select></label>
+          <label>Số ống đã dùng/fill<input id="paste-tubes" type="number" min="1" max="4" step="1" value="1" inputmode="numeric" required></label>
+          <label>Số SLI<input id="paste-sli-count" type="number" min="1" max="2" step="1" value="1" inputmode="numeric" required></label>
+          <label>Lấy khỏi Freezer<input id="paste-freezer" type="datetime-local"></label>
+          <label>ON TOOL / Bơm vào Proflow (mốc 72h)<input id="paste-proflow" type="datetime-local"></label>
+          <label>Lần setup stencil gần nhất<input id="paste-setup" type="datetime-local"></label>
+          <label>Mở nắp Paste (mốc 6 ngày)<input id="paste-open" type="datetime-local"></label>
+          <label>Paste lên Stencil (TIME_ON_STENCIL ~12h)<input id="paste-stencil" type="datetime-local"></label>
+          <label>Paste lên Substrate (sit 1h/3h)<input id="paste-substrate" type="datetime-local"></label>
+        </div>
+        <p id="paste-pair-note" class="form-note"></p>
+        <div id="paste-setup-due" class="date-preview"><small>NGÀY SETUP LẠI</small><b>Nhập thời điểm setup gần nhất</b></div>
+        <div id="paste-special-due" class="date-preview"><small>HẠN CHÌ ĐẶC BIỆT</small><b>Không áp dụng</b></div>
+        <button class="button button-primary" type="submit">Bắt đầu theo dõi</button>
+      </form>
+      <div class="reference-strip"><span><b>24h / 12h</b>Setup lại</span><span><b>18 giờ</b>Chì J58633-001</span><span><b>72 giờ</b>Proflow từ ON TOOL</span><span><b>6 ngày</b>Paste sau mở nắp</span><span><b>~12h</b>TIME_ON_STENCIL</span><span><b>1h / 3h</b>Sit substrate</span></div>
+      <div class="section-heading"><div><span class="eyebrow">COUNTDOWN</span><h2>Paste đang theo dõi</h2></div></div>
+      <div id="paste-list" class="tracker-list"></div>
+    </section>
+
+    <section id="page-flux" class="page" data-title="Flux Timer">
+      <div class="page-heading"><div><span class="eyebrow">FLUX</span><h2>Flux Timer</h2><p>Phát hiện Prompted khi đồng thời còn ≥⅔ ống và pot life ≥12 giờ.</p></div></div>
+      <form id="flux-form" class="panel form-panel">
+        <div class="panel-title"><h3>Thêm Flux</h3></div>
+        <label>Loại Flux
+          <select id="flux-type"></select>
+        </label>
+        <label>Tên ghi trên ống trước ON TOOL<input id="flux-operator" autocomplete="off" placeholder="Tên người sử dụng" required></label>
+        <div class="field-grid">
+          <label>Mở nắp<input id="flux-open" type="datetime-local"></label>
+          <label>Phun Substrate<input id="flux-substrate" type="datetime-local"></label>
+          <label>Chọn nhanh Pot life còn<select id="flux-potlife-preset"><option value="">Nhập ngày giờ thủ công</option><option value="6">Còn 6 giờ</option><option value="12">Còn 12 giờ</option><option value="18">Còn 18 giờ</option><option value="24">Còn 24 giờ</option><option value="36">Còn 36 giờ</option><option value="48">Còn 48 giờ</option><option value="72">Còn 72 giờ</option></select></label>
+          <label>Hoặc nhập số giờ Pot life còn<input id="flux-potlife-hours" type="number" min="0.5" step="0.5" inputmode="decimal" placeholder="VD: 15.5 giờ"></label>
+          <label>Thời điểm hết Pot life<input id="flux-potlife" type="datetime-local"></label>
+          <label>Lượng còn lại<select id="flux-amount"><option value="1">Đầy ống</option><option value="0.67">⅔ ống</option><option value="0.5">½ ống</option><option value="0.33">⅓ ống</option></select></label>
+        </div>
+        <div id="flux-potlife-preview" class="date-preview"><small>POT LIFE CÒN</small><b>Chọn số giờ hoặc nhập ngày hết hạn</b></div>
+        <button class="button button-primary" type="submit">Bắt đầu theo dõi</button>
+      </form>
+      <div class="prompted-rule"><div class="rule-good"><b>PROMPTED</b><span>≥⅔ ống + pot life ≥12h</span></div><div class="rule-stop"><b>SETUP MỚI</b><span>Không thỏa một trong hai điều kiện</span></div></div>
+      <div class="section-heading"><div><span class="eyebrow">COUNTDOWN</span><h2>Flux đang theo dõi</h2></div></div>
+      <div id="flux-list" class="tracker-list"></div>
+    </section>
+
+    <section id="page-passives" class="page" data-title="Passives">
+      <div class="page-heading"><div><span class="eyebrow">REEL TRACKING</span><h2>Tụ / Passives</h2><p>Theo dõi hạn NSX, MSL và vị trí feeder.</p></div></div>
+      <form id="passives-form" class="panel form-panel">
+        <div class="panel-title"><h3>Thêm Reel</h3></div>
+        <div class="field-grid">
+          <label>Part Number<input id="passives-pn" autocomplete="off" required></label>
+          <label>Lot<input id="passives-lot" autocomplete="off" required></label>
+          <label>Ngày giờ hết hạn<input id="passives-expiry" type="datetime-local" required></label>
+          <label>Ngày giờ Install<input id="passives-installed" type="datetime-local"></label>
+          <label>Feeder position<input id="passives-feeder" placeholder="VD: F01" required></label>
+          <label>MSL<select id="passives-msl"><option value="N/A">Không áp dụng</option><option>1</option><option>2</option><option>2a</option><option>3</option><option>4</option><option>5</option><option>5a</option><option>6</option></select></label>
+        </div>
+        <button class="button button-primary" type="submit">Thêm Reel</button>
+      </form>
+      <div class="ban-note">Reel hết hạn: không Install/chạy. Feeder hết hạn phải Uninstall từng cái.</div>
+      <div class="section-heading"><div><span class="eyebrow">REELS</span><h2>Đang theo dõi</h2></div></div>
+      <div id="passives-list" class="tracker-list"></div>
+    </section>
+
+    <section id="page-die" class="page" data-title="Tính Die">
+      <div class="page-heading compact-heading"><div><span class="eyebrow">DIE QUICK CALCULATOR</span><h2>Tính Die</h2><p>Chọn phép tính rồi nhập số. ID Lot không bắt buộc.</p></div></div>
+
+      <div class="die-calc-switch" role="tablist" aria-label="Chọn phép tính Die">
+        <button type="button" role="tab" aria-selected="false" data-die-calc="mother"><span>M</span>Mother Lot</button>
+        <button class="active" type="button" role="tab" aria-selected="true" data-die-calc="balance"><span>K</span>Kill / Sống</button>
+        <button type="button" role="tab" aria-selected="false" data-die-calc="coupon"><span>C</span>Coupon</button>
+      </div>
+
+      <form id="mother-form" class="panel form-panel die-calc-panel" data-die-panel="mother">
+        <div class="calc-panel-head"><div><span class="eyebrow">BATCH</span><h3>Mother Lot</h3></div><button class="text-button" type="button" data-reset-calculator="mother">Xóa ô</button></div>
+        <label class="optional-field">ID / Tên Lot <small>không bắt buộc</small><input id="mother-lot-id" autocomplete="off" placeholder="VD: ATPO-123456"></label>
+        <label>Số lượng từng cuộn Die<input id="mother-reels" autocomplete="off" inputmode="numeric" placeholder="VD: 2500 + 2500 + 2500" required></label>
+        <label>Die của một Lot Full<input id="mother-full-size" type="number" min="1" step="1" value="2520" inputmode="numeric" required></label>
+        <div class="formula-hint">Tổng Die ÷ Lot Full → số dư cuối là Mother Lot</div>
+        <button class="button button-primary calc-submit" type="submit">Tính Mother Lot</button>
+        <div id="mother-result" class="calculation-result die-result" aria-live="polite"><small>KẾT QUẢ</small><b>—</b><span>Nhập số lượng các cuộn để tính.</span></div>
+      </form>
+
+      <form id="die-kill-form" class="panel form-panel die-calc-panel active" data-die-panel="balance">
+        <div class="calc-panel-head"><div><span class="eyebrow">DIE BALANCE</span><h3>Die Kill / Die sống</h3></div><button class="text-button" type="button" data-reset-calculator="balance">Xóa ô</button></div>
+        <div class="die-mode-switch" role="group" aria-label="Chọn dữ liệu đã biết">
+          <button class="active" type="button" data-die-mode="kill">Biết Kill</button>
+          <button type="button" data-die-mode="live">Biết Die sống</button>
+          <button type="button" data-die-mode="both">Cả hai</button>
+        </div>
+        <label class="optional-field">ID / Tên Lot <small>không bắt buộc</small><input id="die-kill-lot-id" autocomplete="off" placeholder="VD: ATPO-123456"></label>
+        <label>Số Die Full trên ATPO<input id="die-full-atpo" type="number" min="0" step="1" inputmode="numeric" placeholder="VD: 2520" required></label>
+        <div class="die-balance-fields" data-mode="kill">
+          <div class="feeder-kill-block" data-die-mode-field="kill">
+            <div class="feeder-kill-title"><b>Die Kill theo từng feeder</b><small>Nhập từ 1 đến 4 feeder</small></div>
+            <div class="feeder-kill-grid">
+              <label><span>F1</span><input id="die-kill-count" class="die-kill-feeder" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label>
+              <label><span>F2</span><input id="die-kill-count-2" class="die-kill-feeder" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label>
+              <label><span>F3</span><input id="die-kill-count-3" class="die-kill-feeder" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label>
+              <label><span>F4</span><input id="die-kill-count-4" class="die-kill-feeder" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label>
+            </div>
+            <div id="die-kill-sum" class="feeder-kill-sum"><small>TỔNG KILL</small><b>0</b><span>Chưa nhập feeder</span></div>
+          </div>
+          <label data-die-mode-field="live" hidden>Số Die sống trên ATPO<input id="die-live-atpo" type="number" min="0" step="1" inputmode="numeric" placeholder="VD: 2500"></label>
+        </div>
+        <div class="formula-hint">Full − tổng Kill của tối đa 4 feeder = Die sống cần cắm</div>
+        <button class="button button-primary calc-submit" type="submit">Tính Die</button>
+        <div id="die-kill-result" class="calculation-result die-result" aria-live="polite"><small>KẾT QUẢ</small><b>—</b><span>Chọn dữ liệu đã biết ở phía trên.</span></div>
+      </form>
+
+      <form id="coupon-form" class="panel form-panel die-calc-panel" data-die-panel="coupon">
+        <div class="calc-panel-head"><div><span class="eyebrow">MAGAZINE</span><h3>Coupon</h3></div><button class="text-button" type="button" data-reset-calculator="coupon">Xóa ô</button></div>
+        <label class="optional-field">ID / Tên Lot <small>không bắt buộc</small><input id="coupon-lot-id" autocomplete="off" placeholder="VD: ATPO-123456"></label>
+        <div class="die-input-grid">
+          <label>Số carrier<input id="coupon-carriers" type="number" min="0" step="1" inputmode="numeric" placeholder="6" required></label>
+          <label>Substrate/carrier<input id="coupon-substrates-per-carrier" type="number" min="0" step="1" inputmode="numeric" placeholder="24" required></label>
+        </div>
+        <label>Substrate thực tế trên SC<input id="coupon-actual-sc" type="number" min="0" step="1" inputmode="numeric" placeholder="VD: 140" required></label>
+        <div class="formula-hint">Carrier × Substrate/carrier − số thực tế trên SC</div>
+        <button class="button button-primary calc-submit" type="submit">Tính Coupon</button>
+        <div id="coupon-result" class="calculation-result die-result" aria-live="polite"><small>KẾT QUẢ</small><b>—</b><span>Nhập ba số để tính Coupon còn trên Magazine.</span></div>
+      </form>
+
+      <details class="compact-detail die-secondary">
+        <summary><span>LOT</span><div><b>Thêm Die Lot để theo dõi</b><small>ATPO · substrate 599 · số lượng còn</small></div><i>⌄</i></summary>
+        <div class="detail-body"><form id="die-form" class="form-panel compact-form">
+          <div class="field-grid">
+            <label>Die Lot<input id="die-lot" autocomplete="off" required></label>
+            <label>ATPO Lot<input id="die-atpo" autocomplete="off" required></label>
+            <label>Substrate tại 599<input id="die-substrate" autocomplete="off" placeholder="Lot / số lượng" required></label>
+            <label>Die Reel PN<input id="die-pn" autocomplete="off"></label>
+            <label>Số lượng còn lại<input id="die-quantity" type="number" min="0" step="1" inputmode="numeric" required></label>
+          </div>
+          <label class="confirm-row"><input id="die-match" type="checkbox">Đã xác minh Die lot khớp ATPO trên Workstream</label>
+          <button class="button button-primary" type="submit">Thêm Die Lot</button>
+        </form></div>
+      </details>
+
+      <details class="compact-detail die-secondary">
+        <summary><span>HIS</span><div><b>Lịch sử tính</b><small>Kết quả Mother · Kill/Sống · Coupon</small></div><i>⌄</i></summary>
+        <div class="detail-body"><div class="detail-tools"><span>Kết quả đã lưu trên thiết bị</span><button id="clear-calculation-history" class="text-button danger-text" type="button">Xóa tất cả</button></div><div id="calculation-history" class="tracker-list"></div></div>
+      </details>
+
+      <details class="compact-detail die-secondary">
+        <summary><span>CHK</span><div><b>Checklist Die Setup</b><small>10 điểm trước khi Introduce Lot</small></div><i>⌄</i></summary>
+        <div class="detail-body"><div class="detail-tools"><span>Chỉ Introduce sau khi xác minh khớp ATPO</span><button id="reset-die-checks" class="text-button danger-text" type="button">Đặt lại</button></div><div id="die-checklist" class="full-checklist"></div></div>
+      </details>
+
+      <div class="section-heading compact-section-heading"><div><span class="eyebrow">DIE LOTS</span><h2>Đang theo dõi</h2></div></div>
+      <div id="die-list" class="tracker-list"></div>
+    </section>
+
+    <section id="page-hirata" class="page" data-title="Máy Hirata">
+      <div class="page-heading compact-heading"><div><span class="eyebrow">LOADER / UNLOADER · QUICK GUIDE</span><h2>Máy Hirata</h2><p>Chọn tình huống cần làm. Chỉ xử lý alarm khi đã được đào tạo và chứng nhận.</p></div></div>
+
+      <div class="critical-banner"><span>EMO</span><div><b>Có người/vật trong vùng nguy hiểm?</b><small>Nhấn EMO → ngắt Cycle power khi cần → báo L2/ES/MTE. Không tự đưa đầu hoặc thân vào máy.</small></div></div>
+
+      <div class="quick-jump-grid">
+        <button type="button" data-jump="hirata-run"><b>01</b><span>Chạy lot</span></button>
+        <button type="button" data-jump="hirata-alarm"><b>02</b><span>Xử lý alarm</span></button>
+        <button type="button" data-jump="hirata-stop"><b>03</b><span>Dừng máy</span></button>
+      </div>
+
+      <details class="compact-detail" open>
+        <summary><span>CA</span><div><b>Đầu ca và chuẩn bị</b><small>Kiểm tra tool · cart · magazine · WIP</small></div><i>⌄</i></summary>
+        <div class="detail-body"><ol class="micro-steps"><li>Đeo kính bảo hộ; mang găng nitrile sạch khi chạm unit, carrier hoặc tray.</li><li>Nhận passdown/WIP; đối chiếu Tool ID, WS/setup của ca trước.</li><li>Kiểm tra ngoại quan máy, cart, magazine; bất thường thì dừng và báo bảo trì.</li><li>Magazine đầy phải nâng hai người. Đẩy cart bằng hai tay, khóa bánh khi đỗ.</li></ol></div>
+      </details>
+
+      <details id="hirata-run" class="compact-detail" open>
+        <summary><span>RUN</span><div><b>Chạy lot / đổi cart</b><small>Thứ tự thao tác ngắn</small></div><i>⌄</i></summary>
+        <div class="detail-body">
+          <ol class="micro-steps"><li>Chọn đúng lot; so sánh số lượng với WS/SC.</li><li>Đặt magazine đúng chiều trên rail dưới của cart.</li><li>Xác nhận máy ở <b>RUNNING</b>, không có đèn đỏ.</li><li>Đưa cart theo rail dưới vào tunnel Unloader; máy tự định vị và chạy.</li><li>Khi đổi cart: chờ màn hình yêu cầu, release ổn định rồi mới rút cart.</li><li>Không cascading/SC: dùng <b>Purge Loader</b> theo quy trình hiện hành; kiểm tra cạnh và phía sau không còn unit/magazine.</li></ol>
+          <div class="state-chips"><span>Cart Change required</span><span>Waiting for Cart</span><span>Please, Undock Cart</span><span>Cart positioning</span><span>Cart Release</span><span>Waiting for Start</span></div>
+        </div>
+      </details>
+
+      <details id="hirata-alarm" class="compact-detail">
+        <summary><span>ALM</span><div><b>Xử lý alarm</b><small>Đọc tên alarm trước khi thao tác</small></div><i>⌄</i></summary>
+        <div class="detail-body">
+          <div class="alarm-rule"><b>Quy tắc chung</b><span>Đèn đỏ + buzzer → mở Main Menu → Alarm nếu trang alarm không tự hiện. Alarm Stop chỉ tắt còi; Reset dùng theo đúng nhánh dưới.</span></div>
+          <div class="mini-action-list">
+            <section><span class="tag safe">RESET</span><div><b>Safety sensor / EMO đã an toàn</b><small>Ready On → Reset → Homing → Start; chọn NO khi hỏi thay part.</small></div></section>
+            <section><span class="tag safe">RESET</span><div><b>Homing / Clutch timeout</b><small>Reset → Homing → Start. Lặp lại lỗi thì báo L2/ES.</small></div></section>
+            <section><span class="tag warn">CHECK</span><div><b>Mapping / Cart Arrival</b><small>Kiểm tra magazine/cart đúng vị trí; Reset/Start theo hướng dẫn. Lỗi lặp lại phải escalate.</small></div></section>
+            <section><span class="tag warn">EMO</span><div><b>Clamp / carrier / gate / light curtain / magazine</b><small>EMO trước khi mở cửa hoặc chạm vật lý. Chỉ người đã chứng nhận mới xử lý; không đưa đầu/thân vào máy.</small></div></section>
+            <section><span class="tag stop">CẤM RESET</span><div><b>MG LOAD NG / LIFT PROHIBIT</b><small>Nhấn EMO và gọi L2/ES ngay.</small></div></section>
+            <section><span class="tag stop">HOLD</span><div><b>Nghi ngờ ảnh hưởng sản phẩm</b><small>Hold lot và liên hệ Engineering; không tự chạy tiếp.</small></div></section>
+          </div>
+        </div>
+      </details>
+
+      <details id="hirata-stop" class="compact-detail">
+        <summary><span>OFF</span><div><b>Dừng máy</b><small>Standby · dài hạn · khẩn cấp</small></div><i>⌄</i></summary>
+        <div class="detail-body">
+          <div class="shutdown-grid"><section><b>Standby / bảo trì</b><span>Start → Shut Down UCS PC → tắt nguồn Hirata. Khởi động lại: Hirata → UCS PC.</span></section><section><b>Dừng dài hạn</b><span>Finish/Stop → Purge magazine cuối → chờ cart release → rút cart → Stop → Cycle power OFF → LOTO khi yêu cầu.</span></section><section><b>Khẩn cấp</b><span>EMO Loader/Unloader → Cycle power OFF → LOTO nếu cần → báo người phụ trách.</span></section></div>
+        </div>
+      </details>
+
+      <div class="source-note"><b>Nguồn ảnh: 121-0435 Rev.51</b><span>Nội dung màu xám không áp dụng VNAT đã được bỏ qua. Đây là thẻ ghi nhớ; Spec/TCR/HMI đang có hiệu lực và đào tạo được phê duyệt luôn ưu tiên.</span></div>
+    </section>
+
+    <section id="page-mtp" class="page" data-title="Mở MTP">
+      <div class="page-heading compact-heading"><div><span class="eyebrow">MARGINAL TOOL POLICY · MMS</span><h2>Mở MTP</h2><p>Quyết định mức vé trước, sau đó làm theo 6 bước.</p></div></div>
+
+      <div class="decision-grid">
+        <article class="decision-card red"><span>ĐỎ</span><div><b>Dừng và xử lý ngay</b><small>Có hoặc chưa loại trừ rủi ro an toàn, chất lượng hay độ tin cậy sản phẩm.</small></div></article>
+        <article class="decision-card yellow"><span>VÀNG</span><div><b>Fix ASAP / theo dõi</b><small>Đã đánh giá không có rủi ro an toàn hoặc độ tin cậy trong thời gian chờ.</small></div></article>
+      </div>
+      <div class="ban-note compact-ban">Không chắc mức nào → chọn hướng an toàn hơn, dừng tool và hỏi Sup/ES/MTE. Không tự hạ vé Đỏ xuống Vàng.</div>
+
+      <article class="panel compact-panel">
+        <div class="panel-title"><div><span class="eyebrow">6 BƯỚC</span><h3>Tạo và theo dõi vé</h3></div></div>
+        <ol class="step-list compact-list"><li><b>Giữ máy và WIP an toàn.</b> Stop/Hold theo SOP hiện hành.</li><li><b>Báo Sup + ES/MTE.</b> Nêu Tool ID, alarm/loss code và ảnh hưởng.</li><li><b>Mở MMS/MTP.</b> Tìm vé hiện có của tool trước; không tạo trùng vé tự động.</li><li><b>Chọn loại và mức.</b> Safety &amp; Quality, Machine hoặc Close Monitoring; Đỏ/Vàng theo đánh giá rủi ro.</li><li><b>Điền và Submit.</b> Ghi đủ tình trạng, WIP bị ảnh hưởng, containment, owner và bằng chứng được phép.</li><li><b>Theo đến khi đóng.</b> Ghi số vé vào passdown; cập nhật điều tra/sửa chữa; buy-off và chỉ đóng bởi vai trò được phép khi tool ổn định.</li></ol>
+        <a class="button button-primary button-link" href="http://mms-ss.intel.com" target="_blank" rel="noopener">Mở MMS</a>
+      </article>
+
+      <div class="category-strip"><span><b>01</b>Safety &amp; Quality</span><span><b>02</b>Machine</span><span><b>03</b>Close Monitoring</span></div>
+
+      <details class="compact-detail">
+        <summary><span>RED</span><div><b>Khi nào chọn Đỏ?</b><small>Ví dụ tình trạng cần dừng</small></div><i>⌄</i></summary>
+        <div class="detail-body"><ul class="compact-bullets"><li>EMO, interlock, cửa/cover/panel/sensor an toàn lỗi, thiếu hoặc bị bypass.</li><li>Máy làm hỏng ball/pin/die/substrate/component; sai số lượng unit.</li><li>Rò điện, hóa chất, dầu, nước, khí; quá nhiệt, tia lửa, rung/ồn/mùi bất thường.</li><li>PCS OOC/OOS; áp suất, vacuum, exhaust hoặc profile nhiệt ngoài giới hạn.</li><li>PC/network/software/hardware treo; scanner/reader/ID lỗi; thay đổi 5M+E không được phép.</li><li>Lỗi setup quá giới hạn hoặc không thể đạt tiêu chí setup.</li></ul></div>
+      </details>
+
+      <details class="compact-detail">
+        <summary><span>YLW</span><div><b>Khi nào chọn Vàng?</b><small>Đã đánh giá rủi ro và cần fix ASAP</small></div><i>⌄</i></summary>
+        <div class="detail-body"><ul class="compact-bullets"><li>Vít/fastener hoặc bất thường có thể chờ sửa sau khi đánh giá an toàn đầy đủ.</li><li>Giảm tốc độ, lỗi lặp lại hoặc tình trạng máy bất thường cần xử lý sớm nhưng chưa có rủi ro chất lượng/an toàn.</li><li>Theo dõi sát sau conversion, repair, PM, unbag/warm-up hoặc xu hướng marginal.</li><li>Tình trạng ban đầu chưa rõ: giữ kiểm soát, đánh giá thêm và nâng lên Đỏ nếu không loại trừ được rủi ro.</li></ul></div>
+      </details>
+
+      <details class="compact-detail">
+        <summary><span>INFO</span><div><b>Thông tin tối thiểu cần chuẩn bị</b><small>Tên trường trên MMS có thể thay đổi</small></div><i>⌄</i></summary>
+        <div class="detail-body"><div class="field-chips"><span>Tool / Entity ID</span><span>Module / Operation</span><span>Ngày giờ / Ca</span><span>Alarm / Loss code</span><span>Lot / WIP ảnh hưởng</span><span>Hiện tượng thực tế</span><span>Containment</span><span>Đỏ / Vàng</span><span>Category</span><span>Owner / Assignee</span><span>Ảnh bằng chứng nếu được phép</span></div></div>
+      </details>
+
+      <div class="source-note"><b>Nguồn ảnh: 20-GS7596 Rev.26</b><span>Cần hoàn thành đào tạo được chỉ định (ảnh nguồn nêu IU 10000876). Nội dung màu xám không áp dụng VNAT đã được bỏ qua; giao diện/tên nút MMS có thể thay đổi.</span></div>
+    </section>
+
+    <section id="page-passdown" class="page" data-title="Passdown">
+      <div class="page-heading"><div><span class="eyebrow">SHIFT HANDOVER</span><h2>Passdown</h2><p>Hoàn tất 10 điểm kiểm tra trước khi lưu bàn giao ca.</p></div></div>
+      <form id="passdown-form" class="panel form-panel">
+        <div class="field-grid">
+          <label>Ca<select id="passdown-shift"><option>Ca 1 — Day</option><option>Ca 2 — Swing</option><option>Ca 3 — Night</option></select></label>
+          <label>Ngày<input id="passdown-date" type="date" required></label>
+          <label>Người giao<input id="passdown-from" autocomplete="off" required></label>
+          <label>Người nhận<input id="passdown-to" autocomplete="off" required></label>
+        </div>
+        <div id="passdown-checklist" class="full-checklist"></div>
+        <button class="button button-primary" type="submit">Lưu Passdown</button>
+      </form>
+      <div class="section-heading"><div><span class="eyebrow">HISTORY</span><h2>Lịch sử bàn giao</h2></div><button id="clear-passdown" class="text-button danger-text" type="button">Xóa</button></div>
+      <div id="passdown-history" class="tracker-list"></div>
+    </section>
+
+    <section id="page-rules" class="page" data-title="Rules">
+      <div class="page-heading"><div><span class="eyebrow">REFERENCE</span><h2>Rules & Loss Codes</h2><p>Tham chiếu nhanh tại máy; không thay thế Spec/TCR hiện hành.</p></div></div>
+      <div class="rule-tabs"><button class="active" type="button" data-rule="passives">Cấm Tụ</button><button type="button" data-rule="die">Cấm Die</button><button type="button" data-rule="both">Cấm cả hai</button></div>
+
+      <article id="rule-passives" class="rule-panel active"><div class="rule-hero red"><span>01</span><div><small>PASSIVES BAN</small><h3>CẤM TỤ</h3></div></div><div class="table-scroll"><table><thead><tr><th>Tình huống</th><th>Phải làm</th></tr></thead><tbody>
+        <tr><td>Reel tụ hết hạn</td><td>Không Install/chạy → Uninstall → Sup trả warehouse</td></tr><tr><td>MBB không đóng kín</td><td>Không dùng → loại ngay</td></tr><tr><td>Tụ rơi khỏi reel</td><td>Nhặt → one-way trash; không đặt lên máy/bàn</td></tr><tr><td>Feeder hết hạn</td><td>Uninstall từng cái → Install reel mới</td></tr><tr><td>MSL warning</td><td>Cài MSL đúng cho mỗi lot</td></tr><tr><td>Thiếu Passives</td><td>Không Introduce Lot → lấy kho bổ sung</td></tr><tr><td>Tụ dính nozzle sau Jam</td><td>Làm sạch → test lại</td></tr><tr><td>Tape Feeder Jam ảnh hưởng unit</td><td>Scrap đúng loss code, tách tụ riêng</td></tr><tr><td>Lot kế tiếp vào quá sớm</td><td>Cấm Introduce đến khi substrate qua hết AX5 + NMS/MNS thứ nhất và carrier đã vào BTU/OXI</td></tr><tr><td>RLT/Buy-off cắm Tụ không đủ</td><td>RLT 2 carrier/lot qua DEX/DEK; Buy-off đủ 2 carrier</td></tr>
+      </tbody></table></div></article>
+
+      <article id="rule-die" class="rule-panel"><div class="rule-hero amber"><span>02</span><div><small>DIE BAN</small><h3>CẤM DIE</h3></div></div><div class="table-scroll"><table><thead><tr><th>Tình huống</th><th>Phải làm</th></tr></thead><tbody>
+        <tr><td>Die lot không khớp ATPO</td><td>Không Introduce → kiểm tra lại</td></tr><tr><td>Thiếu substrate tại 599</td><td>Không chạy → chuẩn bị đủ</td></tr><tr><td>Tip Grohmann có FM / bi hụt hai</td><td>Thay tip → kiểm tra dưới kính</td></tr><tr><td>Orientation Error liên tục</td><td>Không tự sửa → báo ES/MTE</td></tr><tr><td>Bond Head Fail liên tục</td><td>Không retry vô hạn → báo ES/MTE</td></tr><tr><td>Die hết trên reel</td><td>Dừng an toàn → thay reel → update SC</td></tr><tr><td>Carrier SOOP</td><td>Ngừng sản xuất → xử lý SOOP</td></tr><tr><td>Die lệch/bể/rơi</td><td>Ghi đúng CJ13/CJ15/CJ18/GN44</td></tr><tr><td>Long link chưa BYPASS/PASSTHRU</td><td>Không Introduce → thực hiện cho DEK/AX5</td></tr><tr><td>RLT vào Grohmann quá sớm</td><td>Cấm RLT khi carrier chưa qua hết AX5 hoặc chưa hoàn tất Slip Lot</td></tr><tr><td>Feeder trên SC là Unknown / chưa đồng bộ</td><td>Cấm Introduce lot mới → kiểm tra và đồng bộ feeder trên SC</td></tr><tr><td>RLT/Buy-off cắm Die không đủ</td><td>RLT đủ 4 carrier/lot; Buy-off 6 carrier gồm 3 Grohmann 1 + 3 Grohmann 2</td></tr>
+      </tbody></table></div></article>
+
+      <article id="rule-both" class="rule-panel"><div class="rule-hero purple"><span>03</span><div><small>COMBINED BAN</small><h3>CẤM TỤ + DIE</h3></div></div><div class="table-scroll"><table><thead><tr><th>Tình huống</th><th>Hành động</th></tr></thead><tbody>
+        <tr><td>Passives thiếu</td><td>Không Introduce Lot</td></tr><tr><td>Substrate thiếu</td><td>Không Introduce Lot</td></tr><tr><td>Tool DOWN</td><td>Báo Sup/ES → sửa → UP</td></tr><tr><td>Material expired</td><td>Thay vật liệu → Setup lại SC</td></tr><tr><td>Carrier Jam ảnh hưởng cả hai</td><td>Scrap LC và xử lý riêng</td></tr><tr><td>Mixed Lot</td><td>Stop → DRB</td></tr><tr><td>Lot MSL cả hai</td><td>Cài MSL + Verify; chưa cài thì không chạy</td></tr><tr><td>RLT/Buy-off Tụ + Die không đủ</td><td>RLT 2 carrier sau DEK + 6 carrier sau AX5/lot; Buy-off 6 carrier gồm 3 Grohmann 1 + 3 Grohmann 2</td></tr>
+      </tbody></table></div></article>
+
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">WORKSTREAM COMMANDS</span><h3>Hướng dẫn các lệnh sử dụng Workstream</h3></div></div>
+        <div class="table-scroll"><table><thead><tr><th>Code</th><th>Thao tác / Cú pháp</th><th>Mục đích</th></tr></thead><tbody>
+          <tr><td><b>DLIS</b></td><td>Nhập Mother Lot → nhập code <b>DLIS</b> → nhập <b>SUB-MAPP</b></td><td>Xem/đọc Mother Lot và mapping substrate detail</td></tr>
+          <tr><td><b>ENHA</b></td><td>Nhập code <b>ENHA</b> → nhập link đang chạy (VD: <code>CAM008</code>, <code>CAM010</code>, <code>CAM009</code>)</td><td>Gán/liên kết máy đang chạy với link CAM</td></tr>
+          <tr><td><b>OPST</b></td><td>Nhập code <b>OPST</b> → nhập công đoạn <b>2053</b></td><td>Xem công đoạn 2053 đang chạy lot nào</td></tr>
+        </tbody></table></div>
+        <div class="ban-note">Ghi chú: Danh sách lệnh Workstream sẽ được cập nhật thêm sau này.</div>
+      </article>
+
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">PRODUCT FLOW</span><h3>Các Product đang chạy Link CAM</h3></div></div>
+        <div class="table-scroll"><table><thead><tr><th>Luồng sản xuất</th><th>Danh sách Product</th><th>Quy trình</th></tr></thead><tbody>
+          <tr><td><b>Tụ + Die chung</b><br><small>(Combine Flow)</small></td><td><b>SPT, KBP, CMPV, LBGSD</b></td><td>Full flow: DEK → AX5 → ASF → GSC chung một đợt</td></tr>
+          <tr><td><b>Tụ riêng → Die</b><br><small>(Split Flow)</small></td><td><b>CMP, AXLF</b> <i>(và các SKU khác)</i></td><td>Chạy công đoạn Tụ xong hoàn toàn mới chuyển sang công đoạn Die</td></tr>
+        </tbody></table></div>
+      </article>
+
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">IDIE & BUY-OFF</span><h3>Quy tắc IDIE Link 30' và Buy-off</h3></div></div>
+        <ul class="step-list">
+          <li><b>Cân Flux lại khi IDIE:</b> Link chạy <b>IDIE Link 30'</b> (ngưng/chờ &gt; 30 phút) <b>phải cân Flux lại</b> trước khi chạy tiếp.</li>
+          <li><b>DCC IDIE Link 30':</b> In <b>dummy 4 cái</b> và chạy <b>buy-off 2 cái</b>.</li>
+          <li><b>Idle link &gt;30 phút cắm Tụ:</b> RTI 2 carriers, kiểm tra ngoại quan chì và tụ, sau đó buy-off 2 carriers.</li>
+        </ul>
+      </article>
+
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">LOSS CODES</span><h3>Mã lỗi ảnh hưởng cao &amp; High Risk</h3></div></div>
+        <div class="code-grid">
+          <span class="high-risk"><b>CJ20</b>Thiếu chì<br><small>High Risk · 1 unit → MTP</small></span>
+          <span><b>CJ21</b>Nối chì<br><small>3 unit → MTP</small></span>
+          <span><b>CJ24</b>Dư chì<br><small>3 unit → MTP</small></span>
+          <span><b>CJ26</b>Lệch tụ<br><small>3 unit → MTP</small></span>
+          <span><b>CJ27</b>Mất tụ<br><small>3 unit → MTP</small></span>
+          <span class="high-risk"><b>CJ34</b>Nhỏng tụ<br><small>High Risk · 1 unit → MTP</small></span>
+          <span><b>CJ13</b>Die miss / Lệch die<br><small>(CJ213U) · Mở MTP</small></span>
+          <span><b>CJ01</b>Substrate tốt</span>
+          <span><b>CJ15</b>Bể Die</span>
+          <span><b>CJ18</b>Drop Die/Chip</span>
+          <span><b>GN02</b>Lỗi hệ thống</span>
+          <span><b>GN20</b>CMT V1V + VCR 2 SP</span>
+          <span><b>GN44</b>Die đá</span>
+        </div>
+        <div class="ban-note"><b>High Risk:</b> CJ20 (thiếu chì) &amp; CJ34 (nhỏng tụ) xuất hiện 1 unit là ngưng tool &amp; mở MTP ngay. Các mã mở MTP: <b>CJ20, CJ21, CJ24, CJ26, CJ27, CJ34, CJ13 (CJ213U)</b>.</div>
+      </article>
+
+      <article class="panel mtp-panel"><div class="panel-title"><div><span class="eyebrow">MTP TRIGGER</span><h3>Khi nào ngưng tool và mở MTP</h3></div><button class="text-button" type="button" data-go="mtp">Mở hướng dẫn</button></div><div class="table-scroll"><table><thead><tr><th>Trigger hiện có</th><th>Hành động</th></tr></thead><tbody><tr><td>High Risk: CJ20 (thiếu chì) hoặc CJ34 (nhỏng tụ) — 1 unit</td><td>Ngưng tool và mở MTP ngay theo quy định</td></tr><tr><td>CJ21 (nối chì), CJ24 (dư chì), CJ26 (lệch tụ), CJ27 (mất tụ) — 3 unit</td><td>Ngưng tool, mở MTP và báo MTE theo escalation</td></tr><tr><td>CJ13 / CJ213U (Die miss / lệch die)</td><td>Mở MTP và báo MTE theo quy định</td></tr><tr><td>Tool Issue / Sự cố máy</td><td>Phải có MTP ticket; sau ES troubleshooting chạy buy-off 2 tray qua Post DPMS</td></tr></tbody></table></div><div class="ban-note">Giữ tool/WIP an toàn, báo Sup + ES/MTE, rồi mở trang MTP để chọn đúng mức Đỏ/Vàng và theo vé đến khi đóng.</div></article>
+
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">EARLY REPORT</span><h3>ER là gì?</h3></div></div><p class="panel-help"><b>ER (Early Report)</b> là báo cáo sớm các vấn đề liên quan đến sản phẩm, quy trình, tài liệu hoặc hệ thống, giúp ngăn chặn và giảm thiểu tác động của sự cố.</p><div class="ban-note">Web báo ER / Submit Good Catch: <a href="http://mms-ss.intel.com" target="_blank" rel="noopener">mms-ss.intel.com</a></div></article>
+
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">AX5 CONVERSION</span><h3>Setting bắt buộc và xử lý CJ26/CJ27</h3></div></div><div class="table-scroll"><table><thead><tr><th>Setting</th><th>Giá trị</th></tr></thead><tbody><tr><td>Kit Definition Support</td><td><b>Enabled</b></td></tr><tr><td>Lot Definition Required</td><td><b>Enabled</b></td></tr><tr><td>HVC Definition</td><td><b>Disabled</b></td></tr><tr><td>Machine Config</td><td><b>Disabled</b></td></tr></tbody></table></div><ol class="step-list"><li>CJ26 lệch tụ hoặc CJ27 missing tụ: báo MTE ngay với trường hợp reject.</li><li>Sau troubleshooting, cho chạy hết các carrier đã in chì theo quy trình.</li><li>Thực hiện System Calibration / Multiplex Calibration.</li><li>Retry trong 5 phút; nếu còn lỗi phải báo MTE.</li></ol></article>
+
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">DOCUMENT CONTROL</span><h3>Thứ tự ưu tiên tài liệu</h3></div></div><p class="panel-help">Theo đáp án cert khi so sánh bốn loại tài liệu; TCR vẫn được quản lý theo hệ thống thay đổi/phê duyệt hiện hành.</p><div class="document-chain"><span>ETEI<small>14d</small></span><i>→</i><span>TEI<small>90d</small></span><i>→</i><span>SPEC</span><i>→</i><span>SWI<small>1yr</small></span></div></article>
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">SEVERITY</span><h3>Tháp nghiêm trọng</h3></div></div><div class="severity-pyramid"><span>PRT</span><span>L1 MRB</span><span>L2 MRB</span><span>DRB</span><span>YI</span></div></article>
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">STATION CONTROLLER</span><h3>8 bước Setup SC</h3></div></div><ol class="step-list"><li>Đăng nhập Station Controller.</li><li>Material Tracker UI → chọn Module + Material Type.</li><li>Nhấn Setup.</li><li>Scan PN → SLI → Unique ID → Expiration Date.</li><li>Flux: nhập Valve Type + Valve Entity ID.</li><li>Nhấn OK để vật liệu xuất hiện.</li><li>Update Location → OnTool → OK.</li><li>Kiểm tra Material Info xác nhận OnTool.</li></ol></article>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Điều hướng nhanh">
+    <button class="bottom-item active" type="button" data-page="dashboard"><span>⌂</span><small>Home</small></button>
+    <button class="bottom-item" type="button" data-page="paste"><span>P</span><small>Paste</small></button>
+    <button class="bottom-item" type="button" data-page="flux"><span>F</span><small>Flux</small></button>
+    <button class="bottom-item" type="button" data-page="passdown"><span>✓</span><small>Passdown</small></button>
+    <button id="bottom-menu" class="bottom-item" type="button"><span>☰</span><small>Menu</small></button>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./products.js?v=34"></script>
+  <script src="./app.js?v=34" defer></script>
+</body>
+</html>

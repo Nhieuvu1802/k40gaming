@@ -1,0 +1,57 @@
+CREATE TABLE IF NOT EXISTS cam_catalog_meta (
+  id TINYINT UNSIGNED PRIMARY KEY,
+  version INT UNSIGNED NOT NULL DEFAULT 1,
+  spec VARCHAR(100) NOT NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS cam_products (
+  id VARCHAR(100) PRIMARY KEY,
+  name VARCHAR(200) NOT NULL,
+  family VARCHAR(200) NOT NULL DEFAULT '',
+  flow VARCHAR(30) NOT NULL DEFAULT 'both',
+  data_json MEDIUMTEXT NOT NULL,
+  revision INT UNSIGNED NOT NULL DEFAULT 1,
+  updated_by VARCHAR(100) NOT NULL DEFAULT 'system',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_cam_product_name (name),
+  INDEX idx_cam_product_family (family)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS cam_materials (
+  category VARCHAR(30) NOT NULL,
+  pn VARCHAR(100) NOT NULL,
+  data_json TEXT NOT NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (category, pn)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS cam_product_history (
+  history_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id VARCHAR(100) NOT NULL,
+  revision INT UNSIGNED NOT NULL,
+  data_json MEDIUMTEXT NOT NULL,
+  changed_by VARCHAR(100) NOT NULL,
+  change_note VARCHAR(500) NOT NULL DEFAULT '',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_cam_history_product (product_id, revision)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS cam_pending_changes (
+  pending_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id VARCHAR(100) NOT NULL,
+  proposed_json MEDIUMTEXT NOT NULL,
+  base_revision INT UNSIGNED NOT NULL,
+  status ENUM('testing','applied','cancelled','conflict') NOT NULL DEFAULT 'testing',
+  effective_at DATETIME NOT NULL,
+  created_by VARCHAR(100) NOT NULL DEFAULT 'admin',
+  change_note VARCHAR(500) NOT NULL DEFAULT '',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  applied_at DATETIME NULL,
+  INDEX idx_cam_pending_due (status, effective_at),
+  INDEX idx_cam_pending_product (product_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO cam_catalog_meta (id, version, spec) VALUES (1, 1, '121-0087 Rev 174')
+ON DUPLICATE KEY UPDATE spec=VALUES(spec);
