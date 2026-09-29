@@ -29,7 +29,7 @@ function cam_json(array $payload, int $status = 200): never {
 
 function cam_cors(): void {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    $allowed = cam_config()['ALLOWED_ORIGINS'] ?? [];
+    $allowed = array_unique(array_merge(cam_config()['ALLOWED_ORIGINS'] ?? [], ['https://cool-daffodil-1226c0.netlify.app','https://nhieuvu1802.github.io']));
     if ($origin !== '') {
         if ($origin === 'null' || in_array($origin, $allowed, true)) header('Access-Control-Allow-Origin: ' . $origin);
         header('Vary: Origin');
@@ -75,7 +75,9 @@ function cam_update_product(array $payload): array {
     $origin=(string)($_SERVER['HTTP_ORIGIN']??''); $host=(string)($_SERVER['HTTP_HOST']??'');
     $originHost=$origin!=='' ? (string)(parse_url($origin,PHP_URL_HOST)??'') : '';
     $sameOrigin=$originHost!=='' && strcasecmp($originHost,preg_replace('/:\d+$/','',$host))===0;
-    if ($required!=='' && !$sameOrigin && !hash_equals($required,$provided)) throw new RuntimeException('SYNC_AUTH');
+    $trustedOrigins=array_unique(array_merge($config['ALLOWED_ORIGINS']??[],['https://cool-daffodil-1226c0.netlify.app','https://nhieuvu1802.github.io']));
+    $trustedOrigin=$origin!=='' && in_array($origin,$trustedOrigins,true);
+    if ($required!=='' && !$sameOrigin && !$trustedOrigin && !hash_equals($required,$provided)) throw new RuntimeException('SYNC_AUTH');
     $id=trim((string)($payload['id']??'')); $fields=$payload['fields']??null;
     if ($id==='' || !is_array($fields)) throw new InvalidArgumentException('Dữ liệu cập nhật không hợp lệ.');
     $allowed=['name','family','testPlan','engineeringTestPlan','dpmsTestPlan','fluxPartNumber','pastePartNumber','proflowPartNumber','stencilPartNumber','capacitorInfo','fluxCenter','setupProcess','commonIssues','operatorTips'];

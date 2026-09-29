@@ -42,6 +42,7 @@ spec121-0087/
 | `https://vvn.freedev.app/api/health.php` | trạng thái database |
 | `https://vvn.freedev.app/admin/` | quản trị catalog |
 | `https://cool-daffodil-1226c0.netlify.app` | frontend dự phòng Netlify |
+| `https://nhieuvu1802.github.io/k40gaming/` | frontend GitHub Pages |
 
 Thông tin FTP, MySQL và mật khẩu quản trị được giữ trong `deployment.local.env` và `server/config/config.local.php`; không ghi mật khẩu rõ trong tài liệu tổng hợp hoặc JavaScript public.
 
@@ -73,7 +74,7 @@ V2V có revision nội dung riêng: Test Plan `71VLVFW_DCP`, Flux `D56162-002`, 
 - Khi offline, thay đổi được giữ trong `productOverrides` và tự gửi lại khi có mạng.
 - App tải lại catalog khi online, khi quay lại tab và theo chu kỳ 30 giây.
 - Sự kiện `storage` đồng bộ các tab trong cùng trình duyệt.
-- `SYNC_API_KEY` bảo vệ yêu cầu ghi từ origin bên ngoài; yêu cầu ghi cùng domain không làm lộ key trong frontend.
+- `SYNC_API_KEY` bảo vệ origin không tin cậy. InfinityFree cùng domain, Netlify và GitHub Pages nằm trong allowlist nên dùng chung chức năng đọc/ghi catalog mà không làm lộ key trong frontend.
 - Backend lưu revision và lịch sử trong `cam_product_history`.
 
 ## 7. Database production
